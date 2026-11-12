@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=13;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=14;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -78,6 +78,7 @@ select{width:auto;font-weight:500}
 .chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .chip.activo{background:var(--okb);color:var(--ok)}.chip.vencido{background:var(--wnb);color:var(--wn)}.chip.cortado{background:var(--bdb);color:var(--bd)}
 .acts{display:flex;gap:6px;flex-wrap:wrap}
+.tot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;margin-top:6px;border-top:2px solid var(--b);font-weight:700}.tot span{color:var(--m);font-weight:600}.tot b{font-size:19px;color:var(--a)}
 .empty{padding:40px 16px;text-align:center;color:var(--m);background:var(--s);border:1px dashed var(--b);border-radius:var(--r)}
 dialog{border:1px solid var(--b);border-radius:calc(var(--r) + 2px);background:var(--s);color:var(--t);padding:22px;width:min(540px,calc(100% - 24px))}
 dialog::backdrop{background:rgba(0,0,0,.5)}
@@ -404,6 +405,7 @@ if(u==='api/clients')return m==='PUT'?a.put_clients(body):a.get_clients();
 if(u==='api/apply')return a.apply_limits(body);
 if(u==='api/router/queues')return a.router_queues();
 if(u==='api/router/push')return a.router_push(body);
+if(u==='api/router/delete'){if(!a.router_delete)throw new Error('actualiza el programa de Windows (Gax.exe v14)');return a.router_delete(body)}
 if(u==='api/router/usage')return a.router_usage();
 if(u==='api/sync')return a.sync_clients();
 if(u==='api/update')return m==='PUT'?a.check_update(body&&body.repo):a.check_update();
@@ -492,6 +494,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <div class="grid">
 <div class="head"><button class="hb" data-s="nombre" onclick="setSort('nombre',true)">Cliente<span class="ar"></span></button><button class="hb" data-s="plan" onclick="setSort('plan',true)">Plan<span class="ar"></span></button><button class="hb" id="usehd" data-s="uso" onclick="setSort('uso',true)" title="Velocidad actual y total desde que se reinició el contador de la queue">Consumo<span class="ar"></span></button><button class="hb" data-s="pago" onclick="setSort('pago',true)">Pago<span class="ar"></span></button><span></span></div>
 <div id="rows"></div>
+<div id="tot" class="tot" hidden></div>
 <div id="empty" class="empty" hidden></div>
 </div>
 </div>
@@ -686,6 +689,7 @@ const list=clients.filter(c=>inGrp(c)&&(filt==='todos'||status(c)===filt)&&(!t||
 const mx=Math.max(1,...clients.map(c=>+c.down||0));
 $('rows').innerHTML=list.map((c,i)=>row(c,mx,i)).join('');
 $('empty').hidden=list.length>0;
+{const T=$('tot'),sum=list.reduce((s,c)=>s+(+c.price||0),0);T.hidden=!list.length;T.innerHTML=`<span>Pago total · ${list.length} cliente${list.length===1?'':'s'}${list.length!==clients.length?' (filtrado)':''}</span><b>$${money(sum)}</b>`}
 $('empty').textContent=clients.length?'No hay clientes con ese filtro o búsqueda.':'Aún no hay clientes. Usa «Importar del MikroTik» en el menú ⋯ para traer los que ya tienes, o agrega uno con Nuevo cliente.';
 if(!quiet){animRows(prev,dl);if(firstRender||revealNext)reveal()}
 revealNext=false;firstRender=false;if(window.navUpd)navUpd()}
@@ -743,7 +747,9 @@ function grpVal(){const v=$('f-group').value;return v==='__new'?$('f-gnew').valu
 function openMore(b){const m=$('mm');m.hidden=!m.hidden;const r=b.getBoundingClientRect();m.style.top=(r.bottom+6)+'px';m.style.right=Math.max(8,innerWidth-r.right)+'px'}
 function mmGo(f){$('mm').hidden=true;f()}
 document.addEventListener('click',e=>{if(!e.target.closest('#mm')&&!e.target.closest('[onclick^="openMore"]'))$('mm').hidden=true});
-function del(id){const c=get(id);if(!confirm('¿Borrar a '+c.name+'? Esto no cambia nada en el MikroTik.'))return;clients=clients.filter(x=>x.id!==id);save();render()}
+function del(id){const c=get(id);if(!c)return;const q=String(c.queue||'').trim(),shared=!!q&&clients.some(x=>x.id!==id&&String(x.queue||'').trim()===q);
+const m='¿Borrar a '+c.name+'?'+(q?(shared?'\n\nOtro cliente usa la misma queue «'+q+'», por eso en el MikroTik NO se borra.':'\n\nTambién se borrará su queue «'+q+'» en el MikroTik (Winbox).'):'');
+if(!confirm(m))return;clients=clients.filter(x=>x.id!==id);save();render();if(q&&!shared&&window.rsDel)rsDel(q,id)}
 const FK=['name','phone','ip','queue','down','up','price','paid'];
 function openForm(id){editId=id||null;const c=id?get(id):{name:'',phone:'',ip:'',queue:'',down:'',up:'',price:'',paid:addMonth(today())};
 $('ft').textContent=id?'Editar cliente':'Nuevo cliente';
@@ -957,7 +963,26 @@ function item(c){let p=null;try{p=RS&&RS[c.id]?JSON.parse(RS[c.id]):null}catch(e
 return {id:c.id,queue:c.queue,old:window.RN[c.id]||'',ip:c.ip||'',limit:c.cut?'1k/1k':planOf(c),comment:rcom(c),setIp:!!(p&&p[1]!==(c.ip||'')),setLimit:!!(p&&!c.cut&&p[2]!==planOf(c))}}
 function toast(t,bad){let e=document.getElementById('rstoast');if(!e){e=document.createElement('div');e.id='rstoast';e.style.cssText='position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:88vw;padding:9px 14px;border-radius:12px;font-size:13px;z-index:99999;background:var(--s);color:var(--t);border:1px solid var(--b);box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none;transition:opacity .25s;opacity:0';document.body.appendChild(e)}
 e.textContent=t;e.style.borderColor=bad?'var(--bd)':'var(--b)';e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>{e.style.opacity=0},bad?6000:3000)}
-window.rsInit=function(){if(!RS)RS={};clients.forEach(c=>{if(RS[c.id]===undefined)RS[c.id]=rsig(c)});store();rsKick()};
+window.rsInit=function(){if(!RS)RS={};clients.forEach(c=>{if(RS[c.id]===undefined)RS[c.id]=rsig(c)});store();rsKick();dflush(false)};
+/* v14: al borrar un cliente se borra su queue en el MikroTik (pendientes se reintentan) */
+const DK='gax.rdel';let DP=rd(DK,[]),dbusy=false;if(!Array.isArray(DP))DP=[];
+const dstore=()=>{try{localStorage.setItem(DK,JSON.stringify(DP))}catch(e){}};
+async function dflush(show){
+if(dbusy)return;
+const used=new Set(clients.map(c=>String(c.queue||'').trim()));
+DP=DP.filter(n=>!used.has(n));dstore();
+if(!DP.length)return;
+dbusy=true;
+try{const r=await fetch('api/router/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(DP)});
+const d=await r.json();
+if(!d||!d.results)throw new Error((d&&d.error)||'sin respuesta');
+const bad=[];d.results.forEach(x=>{if(x.ok)DP=DP.filter(n=>n!==x.queue);else bad.push(x)});dstore();
+if(show){if(bad.length)toast('MikroTik: no se pudo borrar la queue '+bad[0].queue+' ('+bad[0].error+'). Se reintentará.',true);
+else if(d.results.some(x=>x.action==='borrada'))toast('Queue borrada en el MikroTik')}}
+catch(e){if(show)toast('MikroTik: no se pudo borrar la queue ('+String(e&&e.message||'sin conexión')+'). Se reintentará.',true)}
+finally{dbusy=false}}
+window.rsDel=function(q,id){if(RS)delete RS[id];delete window.RN[id];store();if(DP.indexOf(q)<0)DP.push(q);dstore();dflush(true)};
+setInterval(()=>{if(DP.length&&!document.hidden)dflush(false)},60000);
 window.rsRebase=function(oldL,newL){if(!RS)RS={};const o={};oldL.forEach(c=>{o[c.id]=JSON.stringify(Object.assign({},c,{ts:0}))});
 newL.forEach(c=>{if(o[c.id]!==JSON.stringify(Object.assign({},c,{ts:0})))RS[c.id]=rsig(c)});store()};
 let T=0,busy=false;
