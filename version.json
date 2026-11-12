@@ -1,10 +1,15 @@
 {
  "v": 20,
- "win": "fe5f217492137fc2a2b02fee846df1e0c35ced0e79814511df015b56a2293f8b",
- "apk": "f0de22fedc56366b4b35f01ac09c3d723d74067952e584af98d860b025f3a2bf",
+ "win": "3e55635a28999448cd76d1e0481608b97b5bc8f3ddec93e1f336582a92e02ac3",
+ "apk": "0b3c3e87349f841e5a5519b05f6ba8af9bea11bfdbd2f07103018ef4b7edf237",
  "native_min": 1,
  "notes": [
   "Nuevo: 10 estilos de animaci\u00f3n para la interfaz (Cl\u00e1sico, Suave, Deslizar, Zoom, Rebote, Cascada, Giro 3D, Desenfoque, El\u00e1stico y Ne\u00f3n). Se eligen en Personalizar > Animaciones, con bot\u00f3n \u00abVer\u00bb para probarlos.",
   "El estilo Cl\u00e1sico es el de siempre, as\u00ed que nada cambia si no eliges otro."
- ]
+ ],
+ "native": {
+  "v": 4,
+  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/V20/Gax.exe",
+  "sha256": "84cad31af9d9b8de50fa97b08b981307d2282405bffcaa23c1f8d9c5683e2a57"
+ }
 }
