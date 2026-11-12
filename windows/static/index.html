@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=15;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=16;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -387,6 +387,25 @@ header{flex-wrap:nowrap}.brand{min-width:0}h1{font-size:20px}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .upd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}.upd button{margin-left:auto}
 @media (max-width:700px){.toast{bottom:92px}}
+
+.ihint{display:none!important}
+dialog{border:0;border-radius:calc(var(--r)*1.4);box-shadow:0 24px 70px rgba(0,0,0,.28)}
+dialog::backdrop{background:rgba(10,20,25,.45);backdrop-filter:blur(6px)}
+button.pri{background:linear-gradient(135deg,var(--a),color-mix(in srgb,var(--a) 72%,#fff));box-shadow:0 6px 18px color-mix(in srgb,var(--a) 32%,transparent);transition:transform .15s,box-shadow .15s}
+button.pri:active{transform:scale(.97)}
+.menu{border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+#pd .tabs{display:flex;gap:4px;padding:4px;background:var(--s2);border-radius:999px;margin:0 0 12px}
+#pd .tabs button{flex:1;border:0;background:none;padding:8px 6px;border-radius:999px;font:inherit;font-weight:600;color:var(--m);transition:background .2s,color .2s}
+#pd .tabs button.on{background:var(--s);color:var(--t);box-shadow:0 1px 6px rgba(0,0,0,.14)}
+#pd .sec{display:none}
+#arpd{width:min(560px,94vw)}
+.arq{width:100%;box-sizing:border-box;margin:0 0 10px;padding:11px 14px;border-radius:999px;border:1px solid var(--b);background:var(--s2);color:var(--t);font:inherit}
+.arl{max-height:55vh;overflow:auto}
+.ar{display:grid;grid-template-columns:1.1fr 1.3fr 1fr 12px;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--b);font-size:.9em}
+.ar span{color:var(--m);font-family:ui-monospace,monospace;font-size:.85em}
+.ar i{font-style:normal;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ar em{width:9px;height:9px;border-radius:50%;background:var(--b)}
+.ar em.on{background:var(--ok)}
 </style>
 <script>
 (function(){
@@ -404,6 +423,7 @@ var a=window.pywebview.api;
 if(u==='api/clients')return m==='PUT'?a.put_clients(body):a.get_clients();
 if(u==='api/apply')return a.apply_limits(body);
 if(u==='api/router/queues')return a.router_queues();
+if(u==='api/router/arp')return a.router_arp();
 if(u==='api/router/push')return a.router_push(body);
 if(u==='api/router/delete'){if(!a.router_delete)throw new Error('actualiza el programa de Windows (Gax.exe v14)');return a.router_delete(body)}
 if(u==='api/router/usage')return a.router_usage();
@@ -422,7 +442,7 @@ const NT=[['nieve','#f5f7fb','#ffffff','#edf1f8','#1b2333','#667089','#dbe1ee','
 const TH=['auto','light','nieve','menta','lavanda','sepia','dark','oled','midnight','bosque','atardecer','dracula','oceano','nord','carbon','cereza'],DK=['dark','oled','midnight','bosque','atardecer','dracula','oceano','nord','carbon','cereza'];
 (function(){const L='--ok:#15803d;--okb:#dcf5e4;--wn:#a16207;--wnb:#fdefc6;--bd:#b91c1c;--bdb:#fbe0e0',D='--ok:#6ee7a0;--okb:#11301f;--wn:#fbbf24;--wnb:#33280c;--bd:#fca5a5;--bdb:#3a1818';
 const st=document.createElement('style');st.textContent=NT.map(x=>':root[data-theme="'+x[0]+'"]{color-scheme:'+(x[9]?'dark':'light')+';--bg:'+x[1]+';--s:'+x[2]+';--s2:'+x[3]+';--t:'+x[4]+';--m:'+x[5]+';--b:'+x[6]+';--a:'+x[7]+';--at:'+x[8]+';'+(x[9]?D:L)+'}').join('');document.head.appendChild(st)})();
-const DEFP={theme:'auto',accent:'',density:'normal',round:'normal',zoom:1,anim:true,intro:'ondas',name:'Gax',sndIntro:true,sndIntroType:'campanas',sndUi:true,hov:true,vol:.55,pack:'cristal',btn:null,sort:'nombre',dir:1};
+const DEFP={theme:'auto',accent:'',density:'normal',round:'normal',zoom:1,anim:true,intro:'ondas',name:'Gax',sndIntro:true,sndIntroType:'bienvenida',sndUi:true,hov:true,vol:.55,pack:'cristal',btn:null,sort:'nombre',dir:1};
 let P=Object.assign({},DEFP);
 try{const s=JSON.parse(localStorage.getItem('panelisp.prefs2')||'{}');Object.assign(P,s);if(s.snd===false&&s.sndIntro===undefined){P.sndIntro=P.sndUi=P.hov=false}}catch(e){}
 if(!/^#[0-9a-f]{6}$/i.test(P.accent||''))P.accent='';
@@ -430,7 +450,7 @@ P.name=String(P.name==null?'Gax':P.name).slice(0,20);
 if(['ondas','zoom','cortina','persianas','desenfoque','giro','latido','none'].indexOf(P.intro)<0)P.intro='ondas';
 if(TH.indexOf(P.theme)<0)P.theme='auto';
 P.zoom=Math.min(1.25,Math.max(.85,+P.zoom||1));P.vol=Math.min(1,Math.max(0,+P.vol));if(isNaN(P.vol))P.vol=.4;
-function fixP(){P.btn=P.btn&&typeof P.btn==='object'?P.btn:{};['pay','back','cut'].forEach(k=>{if(!/^#[0-9a-f]{6}$/i.test(P.btn[k]||''))delete P.btn[k]});if(['cristal','sutil','retro','gota','teclas'].indexOf(P.pack)<0)P.pack='cristal';if(['campanas','ascenso','pulso','arcade','brisa','latido'].indexOf(P.sndIntroType)<0)P.sndIntroType='campanas'}fixP();if(P.v!==11){P.hov=true;P.v=11;savePrefs()}
+function fixP(){P.btn=P.btn&&typeof P.btn==='object'?P.btn:{};['pay','back','cut'].forEach(k=>{if(!/^#[0-9a-f]{6}$/i.test(P.btn[k]||''))delete P.btn[k]});if(['cristal','sutil','retro','gota','teclas'].indexOf(P.pack)<0)P.pack='cristal';if(['bienvenida','campanas','ascenso','pulso','arcade','brisa','latido'].indexOf(P.sndIntroType)<0)P.sndIntroType='bienvenida'}fixP();if(P.v!==16){P.hov=true;P.v=16;if(P.sndIntroType==='campanas')P.sndIntroType='bienvenida';savePrefs()}
 function savePrefs(){try{localStorage.setItem('panelisp.prefs2',JSON.stringify(P))}catch(e){}}
 const hx=c=>[1,3,5].map(i=>parseInt(c.substr(i,2),16));
 const mixc=(c,t)=>'#'+hx(c).map(v=>Math.round(v+(255-v)*t).toString(16).padStart(2,'0')).join('');
@@ -500,6 +520,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 </div>
 
 <div id="mm" class="menu" hidden>
+<button onclick="mmGo(openArp)">ARP del MikroTik</button>
 <button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openCfg)">Ajustes</button>
 </div>
 <button class="fab pri" onclick="openForm()" aria-label="Nuevo cliente">＋</button>
@@ -568,6 +589,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <p class="note">Lo oculto se muestra con puntos. En el formulario de un cliente se ve mientras escribes en ese campo.</p>
 <div class="foot"><button onclick="setAllHide(false)">Mostrar todo</button><button onclick="setAllHide(true)">Ocultar todo</button><button class="pri" onclick="$('vd').close()">Listo</button></div>
 </dialog>
+<dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
 <dialog id="pd">
 <h2>Personalizar</h2>
 <div class="opts">
@@ -582,7 +604,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <div class="opt"><label for="p-anim">Animaciones</label><label class="tg"><input id="p-anim" type="checkbox"><span></span></label></div>
 <div class="sec">Al abrir</div>
 <div class="opt"><label>Efecto</label><div class="rg"><div class="seg" data-k="intro"><button data-v="ondas">Ondas</button><button data-v="zoom">Zoom</button><button data-v="cortina">Cortina</button><button data-v="persianas">Persianas</button><button data-v="desenfoque">Desenfoque</button><button data-v="giro">Giro</button><button data-v="latido">Latido</button><button data-v="none">Ninguno</button></div><button class="sm" id="p-prev">Ver</button></div></div>
-<div class="opt"><label for="p-isnd">Sonido</label><select id="p-isnd"><option value="campanas">Campanas</option><option value="ascenso">Ascenso</option><option value="pulso">Pulso</option><option value="arcade">Arcade</option><option value="brisa">Brisa</option><option value="latido">Latido</option><option value="none">Sin sonido</option></select></div>
+<div class="opt"><label for="p-isnd">Sonido</label><select id="p-isnd"><option value="bienvenida">Bienvenida</option><option value="campanas">Campanas</option><option value="ascenso">Ascenso</option><option value="pulso">Pulso</option><option value="arcade">Arcade</option><option value="brisa">Brisa</option><option value="latido">Latido</option><option value="none">Sin sonido</option></select></div>
 <div class="sec">Sonidos</div>
 <div class="opt"><label for="p-sndu">Interfaz</label><label class="tg"><input id="p-sndu" type="checkbox"><span></span></label></div>
 <div class="opt"><label for="p-hov">Al pasar el mouse</label><label class="tg"><input id="p-hov" type="checkbox"><span></span></label></div>
@@ -820,6 +842,8 @@ err:t=>{osc('triangle',210,t,.15,V*.9,{to:150});osc('triangle',175,t+.16,.22,V*.
 del:t=>{nz(t,.2,2200,300,V*.7,.9);osc('sine',300,t,.18,V*.6,{to:110})}};
 /* sonidos de entrada */
 const INTRO={
+bienvenida:t=>{const R=[[392,494,587,784],[330,392,494,659],[349,440,523,698]][Math.floor(Math.random()*3)];nz(t,.7,400,2200,.02,.5);R.forEach((f,i)=>{osc('sine',f,t+.12+i*.16,1.1,.07,{at:.04});osc('sine',f*2,t+.12+i*.16,.6,.02,{at:.03})});osc('triangle',R[0]/2,t,1.4,.05,{lp:700,at:.2})},
+
 campanas:t=>{[523,659,784,1047,1319].forEach((f,i)=>bell(f,t+.15+i*.13,.9,.1));nz(t,.5,500,3500,.03)},
 ascenso:t=>{nz(t,.9,300,5000,.06,.8);[262,330,392,523].forEach((f,i)=>osc('sawtooth',f,t+.3+i*.01,1.2,.03,{lp:1800,at:.25}));bell(1047,t+.85,.9,.1);bell(1568,t+.95,1,.08)},
 pulso:t=>{osc('sine',130,t,.35,.3,{to:42});osc('sine',130,t+.3,.35,.25,{to:42});[1047,1319,1568,2093].forEach((f,i)=>bell(f,t+.55+i*.09,.6,.06))},
@@ -887,18 +911,30 @@ $('p-isnd').onchange=e=>{const v=e.target.value;P.sndIntro=v!=='none';if(P.sndIn
 $('p-sndu').onchange=e=>{setPref('sndUi',e.target.checked);if(e.target.checked)sfx('ok')};
 $('p-name').oninput=e=>{P.name=e.target.value.slice(0,20);savePrefs();applyName()};
 $('p-prev').onclick=()=>{$('pd').close();setTimeout(()=>playIntro(openPrefs),240)};
+let ARP=[];
+const escA=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+function openArp(){$('arpd').showModal();loadArp()}
+function paintArp(){const q=$('arq').value.trim().toLowerCase(),by={};clients.forEach(c=>{if(c.ip)by[c.ip]=c.name});
+const rows=ARP.filter(r=>!q||(r.address+' '+r.mac+' '+r.interface+' '+(by[r.address]||'')).toLowerCase().indexOf(q)>=0);
+$('arl').innerHTML=rows.length?rows.map(r=>'<div class="ar"><b>'+escA(r.address)+'</b><span>'+escA(r.mac||'-')+'</span><i>'+escA(by[r.address]||r.interface)+'</i><em class="'+(r.status==='reachable'||r.status==='permanent'?'on':'')+'"></em></div>').join(''):'<p class="note">Sin resultados</p>'}
+function loadArp(){$('arl').innerHTML='<p class="note">Cargando…</p>';fetch('api/router/arp').then(r=>r.json()).then(d=>{if(d.error){$('arl').innerHTML='<p class="note">'+escA(d.error)+'</p>';return}ARP=d.arp||[];paintArp()}).catch(()=>{$('arl').innerHTML='<p class="note">No disponible. Si estás en Windows, actualiza el programa.</p>'})}
+$('arq').addEventListener('input',paintArp);
+(function(){const o=document.querySelector('#pd .opts'),g=[];let cur=null;[].slice.call(o.children).forEach(n=>{if(n.classList.contains('sec')){cur={t:n.textContent,n:[]};g.push(cur)}else if(cur)cur.n.push(n)});
+const tb=document.createElement('div');tb.className='tabs';o.parentNode.insertBefore(tb,o);
+const show=i=>{g.forEach((x,j)=>x.n.forEach(n=>{n.style.display=j===i?'':'none'}));[].slice.call(tb.children).forEach((b,j)=>b.classList.toggle('on',j===i))};
+g.forEach((x,i)=>{const b=document.createElement('button');b.textContent=x.t;b.onclick=()=>show(i);tb.appendChild(b)});show(0)})();
 /* ===== animacion de entrada ===== */
 const introHTML=$('intro').outerHTML;
 let introActive=document.documentElement.classList.contains('intro'),introQ=[];
 function afterIntro(f){if(introActive)introQ.push(f);else f()}
 function runIntro(done,boot){const h=document.documentElement,el=$('intro');let over=false,played=false,kd,tm;
 $('igreet').textContent=greet();$('itip').textContent='💡 '+TIPS[Math.floor(Math.random()*TIPS.length)];
-const a=P.sndIntro?actxGet():null;buildName();if(a){a.resume().catch(()=>{});if(a.state==='running'){played=true;sfx('intro')}}
+const a=P.sndIntro?actxGet():null;buildName();if(a){const pl=()=>{if(!played&&a.state==='running'){played=true;sfx('intro')}};a.resume().then(pl).catch(()=>{});pl()}
 const end=()=>{if(over)return;over=true;clearTimeout(tm);document.removeEventListener('keydown',kd);el.classList.add('out');
 if(boot){introActive=false;startEnter();introQ.splice(0).forEach(f=>f())}
 setTimeout(()=>{el.remove();h.classList.remove('intro');if(done)done()},560)};
 const go=()=>{if(!played&&P.sndIntro){played=true;sfx('intro')}end()};
-tm=setTimeout(()=>{if(P.sndIntro&&!played)el.classList.add('wait');else end()},1700);
+tm=setTimeout(end,1500);
 kd=()=>go();el.addEventListener('pointerdown',go);document.addEventListener('keydown',kd)}
 function playIntro(done){const h=document.documentElement;if(!$('intro'))document.body.insertAdjacentHTML('afterbegin',introHTML);h.dataset.intro=P.intro;h.classList.add('intro');runIntro(done,false)}
 /* ===== nombre del panel ===== */
@@ -921,8 +957,8 @@ if(!t||t.closest('#intro'))return;if(e.relatedTarget&&t.contains(e.relatedTarget
 document.addEventListener('mouseout',e=>{if(hovT&&!(e.relatedTarget&&hovT.contains(e.relatedTarget))&&e.target.closest&&e.target.closest(HOVSEL)===hovT)hovT=null});
 syncSortUI();
 if(introActive)runIntro(null,true);
-fetch('api/clients').then(r=>r.json()).then(d=>{clients=d;if(window.rsInit)rsInit();const was=introActive;afterIntro(()=>{render();if(was)setTimeout(firstRun,600);else firstRun()})}).catch(()=>alert('No se pudo cargar: sin conexión con el servidor'));
-paintHide();setTimeout(pollUse,1500);setInterval(pollUse,5000);
+fetch('api/clients').then(r=>r.json()).then(d=>{clients=d;if(window.rsInit)rsInit();const was=introActive;render();afterIntro(()=>{if(was)setTimeout(firstRun,600);else firstRun()})}).catch(()=>alert('No se pudo cargar: sin conexión con el servidor'));
+paintHide();setTimeout(pollUse,300);setInterval(pollUse,5000);
 let synBusy=false,synV=null;
 const noTs=c=>{const o=Object.assign({},c);delete o.ts;return o};
 function setSyn(d){const el=$('syn');el.hidden=false;el.className='syn'+(d&&d.off?' off':d&&d.ok?' ok':'');
@@ -932,7 +968,7 @@ fetch('api/sync').then(r=>r.json()).then(d=>{setSyn(d);
 if(d&&d.clients&&d.v!==synV&&n0===putN&&!document.querySelector('dialog[open]')){synV=d.v;
 if(JSON.stringify(d.clients.map(noTs))!==JSON.stringify(clients.map(noTs))){if(window.rsRebase)rsRebase(clients,d.clients);clients=d.clients;render()}}})
 .catch(()=>setSyn({ok:false,msg:'sin respuesta'})).finally(()=>{synBusy=false})}
-setTimeout(pollSync,2500);setInterval(pollSync,12000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollSync()});
+setTimeout(pollSync,700);setInterval(pollSync,12000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollSync()});
 /* ===== v11: flechas arriba/abajo, efecto de pulsacion, menu ===== */
 (function(){const up=$('nUp'),dn=$('nDn');let raf=0;
 const smooth=()=>P.anim?'smooth':'auto';

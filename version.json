@@ -1,11 +1,6 @@
 {
- "v": 15,
- "win": "a888400b47aff4ca1f07f5fba28562a63a3b1e2b7a03166ba8ffa623ebcb8e00",
- "apk": "3606dfaabd71fbb0f5e7892f83c0b0c27a1c83d84168a85ac8b6c41dd54996eb",
- "native_min": 1,
- "native": {
-  "v": 1,
-  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/V15/Gax.exe",
-  "sha256": "1cd690835797153a48ab4046488c3ada6267f038755c9f3455db875e1772e958"
- }
+ "v": 16,
+ "win": "e96f9225d8c911d95b0747206a7fd7993297cabff8fa287d0fbb334983ed456d",
+ "apk": "d3bd8da427a16f4e9891de391ab43c90bd7764583df9c98abea4704ccefec862",
+ "native_min": 1
 }

@@ -390,7 +390,7 @@ MAX_UPD = 3 * 1024 * 1024
 MAX_EXE = 300 * 1024 * 1024
 # Version del programa (la parte de Python/.exe). Subela cada vez que publiques un Gax.exe nuevo.
 # Es distinta de GAX_V (version de la pantalla/HTML).
-NATIVE_V = 1
+NATIVE_V = 2
 RUN_V = [0]  # version de la pantalla que se esta mostrando
 
 
@@ -896,6 +896,22 @@ class Api:
             ru, rd = pair(row.get("rate", "0/0"))
             usage[str(row["name"]).lower()] = {"bu": bu, "bd": bd, "ru": ru, "rd": rd}
         return {"usage": usage}
+
+    def router_arp(self):
+        try:
+            api = connect(load_cfg())
+        except Exception as e:
+            return {"error": "no se pudo conectar al MikroTik: " + str(e)}
+        out = []
+        try:
+            for row in api.path("ip", "arp").select("address", "mac-address", "interface", "status", "comment", "complete"):
+                st = row.get("status") or ("reachable" if row.get("complete") in (True, "true", "yes") else "")
+                out.append({"address": row.get("address", ""), "mac": row.get("mac-address", ""), "interface": row.get("interface", ""), "status": st, "comment": row.get("comment", "")})
+        except Exception as e:
+            return {"error": "no se pudo leer el MikroTik: " + str(e)}
+        finally:
+            api.close()
+        return {"arp": out}
 
     def router_queues(self):
         try:
