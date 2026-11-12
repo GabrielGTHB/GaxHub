@@ -1,4 +1,4 @@
-"""Genera version.json (version de la pantalla, hashes y datos del Gax.exe) para GitHub.
+"""Genera version.json (version de la pantalla, novedades, hashes y datos del Gax.exe) para GitHub.
 Uso: python tools/make_version.py [--exe dist/Gax.exe --repo usuario/repo --tag v2]"""
 import argparse, hashlib, json, os, re, sys
 
@@ -29,6 +29,15 @@ if os.path.exists("native_min.txt"):
     nmin = int(open("native_min.txt").read().strip() or 0)
 if nmin:
     meta["native_min"] = nmin
+# novedades.txt: una linea por novedad; es lo que ve la persona en la ventana "Hay una versión nueva"
+if os.path.exists("novedades.txt"):
+    notes = []
+    for ln in open("novedades.txt", encoding="utf-8"):
+        ln = ln.strip()
+        if ln and not ln.startswith("#"):
+            notes.append(ln.lstrip("-*• ").strip()[:240])
+    if notes:
+        meta["notes"] = notes[:12]
 if a.exe:
     nv = grab("windows/app.py", r"(?m)^NATIVE_V\s*=\s*(\d+)")
     meta["native"] = {"v": nv, "exe": "https://github.com/%s/releases/download/%s/Gax.exe" % (a.repo, a.tag), "sha256": sha(a.exe)}

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=17;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=18;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -388,7 +388,6 @@ header{flex-wrap:nowrap}.brand{min-width:0}h1{font-size:20px}
 .upd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}.upd button{margin-left:auto}
 @media (max-width:700px){.toast{bottom:92px}}
 
-.ihint{display:none!important}
 dialog{border:0;border-radius:calc(var(--r)*1.4);box-shadow:0 24px 70px rgba(0,0,0,.28)}
 dialog::backdrop{background:rgba(10,20,25,.45);backdrop-filter:blur(6px)}
 button.pri{background:linear-gradient(135deg,var(--a),color-mix(in srgb,var(--a) 72%,#fff));box-shadow:0 6px 18px color-mix(in srgb,var(--a) 32%,transparent);transition:transform .15s,box-shadow .15s}
@@ -422,6 +421,32 @@ button.pri:active{transform:scale(.97)}
 @keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
 @keyframes iOut{to{opacity:0}}
 #intro.out{animation:iOut .35s ease forwards}
+/* v18: celulares chicos (320-380px): nada se sale de la pantalla */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overflow-x:clip}
+@media (max-width:700px){
+.wrap,.grid,#rows,.tools,.line,.pills,.qs,.row>*{min-width:0}
+.line{flex-wrap:nowrap}
+.qs,.pills{max-width:100%}
+.row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.acts{flex-wrap:wrap;row-gap:4px}
+.wh{white-space:normal}
+dialog{max-width:100vw}
+.nav{top:auto;transform:none;right:29px;bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:380px){
+.row{grid-template-columns:minmax(0,1fr) auto}
+.row .r-pay,.row .r-back,.row .r-cut{padding:5px 8px}
+.ib{width:28px;height:28px}
+.acts{gap:2px}
+}
+/* v18: ventana de version nueva */
+#ud .ver{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:-6px 0 14px;font-size:13.5px;color:var(--m)}
+#ud .ver b{font-size:15px;color:var(--a)}
+#ud .nw{margin:0;padding:0;list-style:none;display:grid;gap:9px;max-height:min(46vh,320px);overflow:auto}
+#ud .nw li{position:relative;padding-left:18px;font-size:14px;line-height:1.45}
+#ud .nw li::before{content:"";position:absolute;left:3px;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--a)}
+#ud .note:empty{display:none}
 </style>
 <script>
 (function(){
@@ -518,7 +543,8 @@ var SY=GaxSync({load:function(){return {clients:L('isp.clients',[]),dead:L('isp.
 remote:function(fn){var c=cfg();return fn(GaxRestRemote(function(path,opt){return rest(c,path,opt)}))}});
 function kick(){if(cfg().sync!==false)SY.sync()}
 var REPO_RE=/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/;
-function doUpdate(repoIn){var c=cfg(),cur=window.GAX_V||0;
+function cleanNotes(a){return (Array.isArray(a)?a:[]).slice(0,12).map(function(x){return String(x).trim().slice(0,240)}).filter(Boolean)}
+function doUpdate(repoIn,mode){var c=cfg(),cur=window.GAX_V||0;
 if(repoIn!==null){if(repoIn&&!REPO_RE.test(repoIn))return J({ok:false,state:'error',v:cur,msg:'El repositorio debe verse como usuario/gax-panel'});c.repo=repoIn;W('isp.cfg',c)}
 var repo=String(c.repo||'').trim();
 if(!repo)return J({ok:true,state:'off',v:cur,msg:'Escribe tu usuario/repositorio de GitHub para activar las actualizaciones.'});
@@ -527,9 +553,11 @@ var raw=function(f){return 'https://raw.githubusercontent.com/'+repo+'/main/'+f+
 var get=function(f){return of(raw(f)).then(function(r){if(!r.ok)throw new Error(f+': HTTP '+r.status);return r.text()})};
 return get('version.json').then(function(t){var m=JSON.parse(t),v=parseInt(m.v,10),sha=String(m.apk||'').toLowerCase();
 if(!(v>0)||!/^[0-9a-f]{64}$/.test(sha))throw new Error('version.json no es valido');
-var staged=parseInt(localStorage.getItem('gax.upd.v'),10)||0,bad=parseInt(localStorage.getItem('gax.upd.bad'),10)||0;
-if(v<=Math.max(cur,staged))return J({ok:true,state:'none',v:cur,msg:'Estás al día (versión '+cur+').'});
+var L=localStorage,staged=parseInt(L.getItem('gax.upd.v'),10)||0,bad=parseInt(L.getItem('gax.upd.bad'),10)||0,have=staged>0&&!!L.getItem('gax.upd.html');
+if(v<=cur)return J({ok:true,state:'none',v:cur,msg:'Estás al día (versión '+cur+').'});
 if(v<=bad)return J({ok:true,state:'none',v:cur,msg:'La versión '+v+' falló antes. Esperando una más nueva.'});
+if(mode==='check')return J({ok:true,state:'available',v:v,cur:cur,notes:cleanNotes(m.notes),staged:have&&staged>=v});
+if(have&&staged>=v)return mode==='install'?J({ok:true,state:'ready',v:v,msg:'Versión '+v+' lista.'}):J({ok:true,state:'none',v:cur,msg:'Estás al día (versión '+cur+').'});
 return get('apk.html').then(function(h){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(h)).then(function(b){
 var hx=Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2)}).join('');
 if(hx!==sha)throw new Error('la descarga no coincide con version.json');
@@ -591,8 +619,9 @@ return Promise.all(ws).then(function(){return J({results:res})})
 }).catch(function(e){return J({error:'no se pudo conectar al MikroTik: '+e.message},502)})},
 'GET ready':function(){try{var L=localStorage,uv=L.getItem('gax.upd.v');if(uv&&String(window.GAX_V)===uv){L.setItem('gax.upd.ok',uv);L.removeItem('gax.upd.try')}}catch(e){}return J({ok:true})},
 'GET fail':function(){var re=false;try{var L=localStorage,uv=L.getItem('gax.upd.v');if(uv&&String(window.GAX_V)===uv){L.setItem('gax.upd.bad',uv);['html','v','try','ok'].forEach(function(k){L.removeItem('gax.upd.'+k)});re=true}}catch(e){}return J({ok:true,reload:re})},
-'GET update':function(){return doUpdate(null)},
-'PUT update':function(b){var d={};try{d=JSON.parse(b||'{}')}catch(e){}return doUpdate(typeof d.repo==='string'?d.repo.trim():null)},
+'GET update':function(){return doUpdate(null,'check')},
+'PUT update':function(b){var d={};try{d=JSON.parse(b||'{}')}catch(e){}return doUpdate(typeof d.repo==='string'?d.repo.trim():null,d.mode)},
+'POST update/apply':function(){return J({ok:true,reload:true})},
 'GET router/usage':function(){var c=cfg();
 return rest(c,'/queue/simple?.proplist=name,bytes,rate,dynamic').then(function(rows){var u={};
 (rows||[]).forEach(function(x){if(String(x.dynamic)==='true'||!x.name)return;
@@ -645,17 +674,19 @@ if(HEXRE.test(c))s.setProperty('--t-'+k,lumc(c)>.4?'#101010':'#ffffff')}
 function paintAccent(c0){const s=document.documentElement.style;let c='';
 if(c0){c=isDark()?mixc(c0,.25):c0;s.setProperty('--a',c);s.setProperty('--at',lumc(c)>.4?'#04201d':'#ffffff')}else{s.removeProperty('--a');s.removeProperty('--at')}
 if(!(P.btn&&P.btn.back)){if(c)s.setProperty('--t-back',lumc(c)>.4?'#101010':'#ffffff');else paintBtnOne('back',null)}}
+function zoomEff(z){const w=window.innerWidth||360;return +(z*(w<=700?Math.max(.85,Math.min(1,w/360)):1)).toFixed(3)}
 function applyPrefs(){
 const h=document.documentElement,s=h.style;
 if(P.theme!=='auto')h.setAttribute('data-theme',P.theme);else h.removeAttribute('data-theme');
 paintAccent(P.accent);
 const D={compact:['7px','5px'],normal:['12px','8px'],comfy:['18px','12px']}[P.density]||['12px','8px'];
 const R={sharp:['6px','4px'],normal:['14px','10px'],round:['24px','18px']}[P.round]||['14px','10px'];
-s.setProperty('--rp',D[0]);s.setProperty('--rg',D[1]);s.setProperty('--r',R[0]);s.setProperty('--rb',R[1]);s.setProperty('--zoom',P.zoom);
+s.setProperty('--rp',D[0]);s.setProperty('--rg',D[1]);s.setProperty('--r',R[0]);s.setProperty('--rb',R[1]);s.setProperty('--zoom',zoomEff(P.zoom));
 h.classList.toggle('anim',!!P.anim);
 ['pay','back','cut'].forEach(k=>paintBtnOne(k,P.btn[k]||null));
 const m=document.querySelector('meta[name=theme-color]');if(m)m.content=P.accent||'#0f766e'}
 applyPrefs();
+window.addEventListener('resize',()=>document.documentElement.style.setProperty('--zoom',zoomEff(P.zoom)));
 try{matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyPrefs)}catch(e){}
 function startEnter(){if(!P.anim)return;const h=document.documentElement;h.classList.add('enter');setTimeout(()=>h.classList.remove('enter'),3000)}
 if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');document.documentElement.dataset.intro=P.intro}else startEnter();
@@ -769,6 +800,12 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 </div>
 <p class="note">Lo oculto se muestra con puntos. En el formulario de un cliente se ve mientras escribes en ese campo.</p>
 <div class="foot"><button onclick="setAllHide(false)">Mostrar todo</button><button onclick="setAllHide(true)">Ocultar todo</button><button class="pri" onclick="$('vd').close()">Listo</button></div>
+</dialog>
+<dialog id="ud"><h2>Hay una versión nueva</h2>
+<p class="ver"><b id="ud-v"></b><span id="ud-c"></span></p>
+<ul class="nw" id="ud-n"></ul>
+<p class="note" id="ud-s" aria-live="polite"></p>
+<div class="foot"><button id="ud-no" type="button" onclick="updLater()">Ahora no</button><button id="ud-go" class="pri" type="button" onclick="updInstall()">Instalar ahora</button></div>
 </dialog>
 <dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
 <dialog id="pd">
@@ -1037,7 +1074,7 @@ const go=()=>{try{const t=a.currentTime+.015;if(n==='intro')(INTRO[P.sndIntroTyp
 if(a.state==='running')go();else{const p=a.resume();if(p)p.then(()=>{if(a.state==='running')go()}).catch(()=>{})}}
 /* desbloquear el audio con cualquier toque, tecla o clic */
 const unlock=()=>{if(!(P.sndIntro||P.sndUi||P.hov))return;const a=actxGet();if(a&&a.state!=='running')a.resume().catch(()=>{})};
-['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
+['pointerdown','pointerup','touchstart','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{capture:true,passive:true}));
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.closest('#intro'))setTimeout(()=>{if(performance.now()-lastSfx>150)sfx('tick')},0)});
 document.addEventListener('close',()=>sfx('close'),true);
 /* ===== animacion de los dialogos ===== */
@@ -1082,7 +1119,7 @@ function resetPrefs(){P=Object.assign({},DEFP);P.btn={};savePrefs();applyPrefs()
 $('pd').addEventListener('click',e=>{const b=e.target.closest('.seg button');if(b){setPref(b.parentNode.dataset.k,b.dataset.v);return}const w=e.target.closest('.sw');if(w)setPref('accent',w.dataset.c)});
 $('p-theme').onchange=e=>setPref('theme',e.target.value);
 $('p-pack').onchange=e=>{setPref('pack',e.target.value);sfx('ok',true)};
-$('p-zoom').addEventListener('input',e=>{const z=+e.target.value;$('p-zoomv').textContent=Math.round(z*100)+'%';live(()=>document.documentElement.style.setProperty('--zoom',z))});
+$('p-zoom').addEventListener('input',e=>{const z=+e.target.value;$('p-zoomv').textContent=Math.round(z*100)+'%';live(()=>document.documentElement.style.setProperty('--zoom',zoomEff(z)))});
 $('p-zoom').addEventListener('change',e=>{liveStop();dragOff();setPref('zoom',+e.target.value)});
 $('p-vol').addEventListener('input',e=>{P.vol=+e.target.value;$('p-volv').textContent=Math.round(P.vol*100)+'%';if(mg)mg.gain.value=P.vol*1.5});
 $('p-vol').addEventListener('change',()=>{savePrefs();sfx('ok',true)});
@@ -1108,14 +1145,19 @@ g.forEach((x,i)=>{const b=document.createElement('button');b.textContent=x.t;b.o
 const introHTML=$('intro').outerHTML;
 let introActive=document.documentElement.classList.contains('intro'),introQ=[];
 function afterIntro(f){if(introActive)introQ.push(f);else f()}
-function runIntro(done,boot){const h=document.documentElement,el=$('intro');let over=false,played=false,kd,tm;
-const a=P.sndIntro?actxGet():null;buildName();if(a){const pl=()=>{if(!played&&a.state==='running'){played=true;sfx('intro')}};a.resume().then(pl).catch(()=>{});pl()}
-const end=()=>{if(over)return;over=true;clearTimeout(tm);document.removeEventListener('keydown',kd);el.classList.add('out');
+function runIntro(done,boot){const h=document.documentElement,el=$('intro');let over=false,played=false,kd,tm,wt;
+const MIN=1500,WAIT=2200;
+const a=P.sndIntro?actxGet():null;buildName();
+/* el sonido solo arranca junto con la animacion; si el audio estaba bloqueado nunca suena tarde */
+const play=()=>{if(played||over||!P.sndIntro)return;played=true;sfx('intro')};
+if(a){const pl=()=>{if(a.state==='running')play()};a.resume().then(pl).catch(()=>{});pl()}
+const end=()=>{if(over)return;over=true;clearTimeout(tm);clearTimeout(wt);document.removeEventListener('keydown',kd);el.classList.remove('wait');el.classList.add('out');
 if(boot){introActive=false;startEnter();introQ.splice(0).forEach(f=>f())}
 setTimeout(()=>{el.remove();h.classList.remove('intro');if(done)done()},560)};
-const go=()=>{if(!played&&P.sndIntro){played=true;sfx('intro')}end()};
-tm=setTimeout(end,1250);
-kd=()=>go();el.addEventListener('pointerdown',go);document.addEventListener('keydown',kd)}
+const go=()=>{play();end()};
+/* la entrada dura 1,5 s para que se vea y se oiga completa; si el celular aun bloquea el audio, espera un toque unos segundos */
+tm=setTimeout(()=>{if(a&&!played&&P.sndIntro){el.classList.add('wait');wt=setTimeout(end,WAIT)}else end()},MIN);
+kd=()=>go();el.addEventListener('pointerup',go);document.addEventListener('keydown',kd)}
 function playIntro(done){const h=document.documentElement;if(!$('intro'))document.body.insertAdjacentHTML('afterbegin',introHTML);h.dataset.intro=P.intro;h.classList.add('intro');runIntro(done,false)}
 /* ===== nombre del panel ===== */
 const appName=()=>(P.name||'').trim()||'Gax';
@@ -1229,14 +1271,39 @@ if(r.err){showCmd('Enviar clientes al MikroTik','ERROR: '+r.err);return}
 const ok=r.res.filter(x=>x.ok),cr=ok.filter(x=>x.action==='creada').length,up=ok.filter(x=>x.action==='actualizada').length;
 showCmd('Enviar clientes al MikroTik','Queues creadas: '+cr+'\nComentarios actualizados: '+up+'\nSin cambios: '+(ok.length-cr-up)+(r.bad.length?'\n\nNo se pudieron enviar ('+r.bad.length+'):\n'+r.bad.map(x=>x.queue+' -> '+x.error).join('\n'):''))};
 })();
-/* ===== actualizaciones automaticas (GitHub) ===== */
-const UPDI={last:0};
+/* ===== actualizaciones (GitHub): avisa que hay version nueva y pregunta si instalarla ===== */
+const UPDI={last:0,skip:0,open:false,busy:false,done:false,d:null};
 function toast(msg,ms){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),ms||5000)}
+const updReq=(mode,repo)=>{const b={mode:mode};if(repo!=null)b.repo=repo;return fetch('api/update',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json())};
+function updShow(d){UPDI.d=d;UPDI.open=true;UPDI.done=false;
+$('ud-v').textContent='Versión '+d.v;$('ud-c').textContent=d.cur&&d.cur!==d.v?'Tienes la '+d.cur:'';
+const ul=$('ud-n');ul.innerHTML='';(d.notes&&d.notes.length?d.notes:['Mejoras y correcciones.']).forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li)});
+$('ud-s').textContent=d.restart?'Gax se cierra y se vuelve a abrir solo al terminar.':'';
+const go=$('ud-go'),no=$('ud-no');go.hidden=false;go.disabled=false;no.disabled=false;no.textContent='Ahora no';go.textContent=d.staged?'Reiniciar ahora':'Instalar ahora';
+let tried=false;try{tried=sessionStorage.getItem('gax.upd.try')===String(d.v)}catch(e){}
+if(d.staged&&tried){$('ud-s').textContent='Ya está descargada. Cierra Gax por completo y vuelve a abrirla para usarla.';go.hidden=true;no.textContent='Cerrar'}
+const dl=$('ud');if(!dl.open)dl.showModal()}
+function updLater(){if(UPDI.busy)return;$('ud').close()}
+$('ud').addEventListener('cancel',e=>{if(UPDI.busy)e.preventDefault()});
+$('ud').addEventListener('close',()=>{UPDI.open=false;if(UPDI.d&&!UPDI.done)UPDI.skip=UPDI.d.v});
+async function updInstall(){const d=UPDI.d,go=$('ud-go'),no=$('ud-no'),s=$('ud-s');if(!d||UPDI.busy)return;
+UPDI.busy=true;go.disabled=no.disabled=true;s.textContent=d.staged?'Aplicando…':'Descargando la versión '+d.v+'…';
+try{if(!d.staged){const r=await updReq('install');if(!r||r.state!=='ready')throw new Error((r&&r.msg)||'No se pudo descargar la versión nueva.')}
+UPDI.done=true;s.textContent='Listo. Reiniciando…';
+const a=await fetch('api/update/apply',{method:'POST'}).then(r=>r.json()).catch(()=>null);
+if(a&&a.reload){try{sessionStorage.setItem('gax.upd.try',String(d.v))}catch(e){}setTimeout(()=>location.reload(),600);return}
+if(a&&a.ok)return;
+s.textContent='Instalada. Se usa la próxima vez que abras Gax.';go.hidden=true;no.disabled=false;no.textContent='Cerrar'}
+catch(e){s.textContent=String(e&&e.message||e);go.disabled=false;go.textContent='Reintentar';no.disabled=false}
+finally{UPDI.busy=false}}
 function updCheck(manual){UPDI.last=Date.now();const u=$('c-umsg');if(manual&&u)u.textContent='Buscando...';
-const req=manual?fetch('api/update',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({repo:($('c-repo').value||'').trim()})}):fetch('api/update');
-return req.then(r=>r.json()).then(d=>{if(!d)return;const m=d.state==='ready'?'Versión '+d.v+' lista. Se aplica al reabrir la app.':(d.msg||'');
+const req=manual?updReq('check',($('c-repo').value||'').trim()):updReq('check');
+return req.then(d=>{if(!d)return;
+if(d.state==='available'){if(u)u.textContent='Hay una versión nueva ('+d.v+').';if(manual||(!UPDI.open&&UPDI.skip!==d.v))updShow(d);return d}
+const m=d.state==='ready'?(d.msg||('Versión '+d.v+' lista. Se aplica al reabrir la app.')):(d.msg||'');
 if(u)u.textContent=m;if(d.state==='ready')toast(m,9000);else if(manual)toast(m,6000);return d}).catch(()=>{if(u)u.textContent='';if(manual)toast('No se pudo buscar actualizaciones')})}
-setTimeout(()=>updCheck(false),7000);setInterval(()=>{if(!document.hidden)updCheck(false)},4*3600*1000);
+/* al abrir Gax (cuando termina la entrada) se busca; despues, cada 4 h o al volver a la app */
+afterIntro(()=>setTimeout(()=>updCheck(false),800));setInterval(()=>{if(!document.hidden)updCheck(false)},4*3600*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-UPDI.last>3600*1000)updCheck(false)});
 /* avisa que la pantalla abrio bien (si no, la actualizacion se descarta sola) */
 setTimeout(()=>{if(!window.__gerr)fetch('api/ready').catch(()=>{});else fetch('api/fail').then(r=>r.json()).then(d=>{if(d&&d.reload)location.replace('app.html')}).catch(()=>{})},1200);

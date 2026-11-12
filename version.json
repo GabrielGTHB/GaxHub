@@ -1,6 +1,11 @@
 {
- "v": 17,
- "win": "52e76a363ecc9e42349ab364c1157bec476ead20c5a8a6c42b987e7fadaf97be",
- "apk": "0ce4f770b24e39dbf8cb3da7633811946038882c43797b46fbf871ebe194b4da",
- "native_min": 1
+ "v": 18,
+ "win": "017d39d7eed462541e8bf55c6fcb251b007547ae0f1a3cf9cf1e8d9481f4f9bd",
+ "apk": "2e59cbd6a5500190e83f2911413d3bbc6e2df43ba978fb0b45837d7a4c54caea",
+ "native_min": 1,
+ "notes": [
+  "Al abrir Gax, si hay una versi\u00f3n nueva aparece una ventana con las novedades y eliges si instalarla o no.",
+  "La animaci\u00f3n de entrada dura un poco m\u00e1s (1,5 s) para que se vea completa y suene el sonido al mismo tiempo.",
+  "En el celular la pantalla se ajusta a tel\u00e9fonos chicos: ya no se corta por el costado."
+ ]
 }

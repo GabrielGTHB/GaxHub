@@ -2,8 +2,11 @@
 
 ## Solo cambios de pantalla (win.html / apk.html)
 1. Edita `win.html` y `apk.html` y sube `GAX_V` (el MISMO numero en los dos).
-2. Corre `python tools/make_version.py` y sube todo (html + version.json) en el mismo commit a `main`.
-   Las apps (PC y celular) se actualizan solas.
+2. Escribe en `novedades.txt` que trae la version (una linea por novedad). Eso es lo que la gente ve en la
+   ventana "Hay una versión nueva" cuando abre Gax.
+3. Corre `python tools/make_version.py` y sube todo (html + novedades.txt + version.json) en el mismo commit a `main`.
+   Al abrir Gax (PC o celular) aparece la ventana con las novedades y cada persona elige si instalar o no.
+   Copia tambien `win.html` a `windows/static/index.html` (son el mismo archivo).
 
 ## Cambios del programa de Windows (app.py)
 1. Cambia lo que necesites en `windows/app.py` y sube `NATIVE_V` (ej. de 1 a 2).

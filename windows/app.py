@@ -9,6 +9,7 @@ import subprocess
 import urllib.request
 import sqlite3
 import threading
+import pathlib
 import webview
 import librouteros
 from librouteros.query import Key
@@ -390,7 +391,7 @@ MAX_UPD = 3 * 1024 * 1024
 MAX_EXE = 300 * 1024 * 1024
 # Version del programa (la parte de Python/.exe). Subela cada vez que publiques un Gax.exe nuevo.
 # Es distinta de GAX_V (version de la pantalla/HTML).
-NATIVE_V = 2
+NATIVE_V = 3
 RUN_V = [0]  # version de la pantalla que se esta mostrando
 
 
@@ -585,7 +586,19 @@ def apply_pending_exe():
         return False
 
 
-def do_check_update(repo_in=None):
+def _clean_notes(x):
+    out = []
+    if isinstance(x, list):
+        for t in x[:12]:
+            t = str(t).strip()
+            if t:
+                out.append(t[:240])
+    return out
+
+
+def do_check_update(repo_in=None, mode=None):
+    """mode='check': solo mira si hay una version nueva y devuelve lo que trae (no descarga nada).
+    mode='install' (o sin modo, como las pantallas viejas): descarga y deja lista la version nueva."""
     cur = RUN_V[0]
     c = load_cfg()
     if repo_in is not None:
@@ -607,9 +620,29 @@ def do_check_update(repo_in=None):
             raise ValueError("version.json no es valido")
         native = meta.get("native") if isinstance(meta.get("native"), dict) else {}
         nmin = int(meta.get("native_min") or 0)
+        exe_v = int(native.get("v") or 0)
+        exe_new = exe_v > NATIVE_V and FROZEN
+        staged = int((_jload(_upd("meta.json")) or {}).get("v") or 0) if os.path.exists(_upd("app.html")) else 0
+        bad = int((_jload(_upd("bad.json")) or {}).get("v") or 0)
+
+        if mode == "check":
+            # la pantalla nueva solo sirve si este programa ya trae lo que ella necesita
+            html_new = nmin <= NATIVE_V and v > cur and v > bad
+            if not (html_new or exe_new):
+                if nmin > NATIVE_V:
+                    return {"ok": True, "state": "none", "v": cur, "msg": "Hay una versión nueva que necesita actualizar el programa (Gax.exe). Descarga la versión nueva desde GitHub."}
+                if v <= cur:
+                    return {"ok": True, "state": "none", "v": cur, "msg": "Estás al día (versión %d)." % cur}
+                return {"ok": True, "state": "none", "v": cur, "msg": "La versión %d falló antes. Esperando una más nueva." % v}
+            done = _jload(_upd("exe.json")) or {}
+            exe_ok = (not exe_new) or (int(done.get("v") or 0) == exe_v and os.path.exists(_upd("Gax.new.exe")))
+            html_ok = (not html_new) or staged >= v
+            return {"ok": True, "state": "available", "v": max(v, cur), "cur": cur,
+                    "notes": _clean_notes(meta.get("notes")), "restart": bool(exe_new), "staged": bool(exe_ok and html_ok)}
+
         exe_msg = ""
-        if int(native.get("v") or 0) > NATIVE_V and FROZEN and _stage_exe(repo, native):
-            exe_msg = "Programa nuevo (versión %d) listo. Se instala al reabrir la app." % int(native["v"])
+        if exe_new and _stage_exe(repo, native):
+            exe_msg = "Programa nuevo (versión %d) listo. Se instala al reabrir la app." % exe_v
 
         def fin(d):
             if exe_msg:
@@ -621,12 +654,14 @@ def do_check_update(repo_in=None):
             if exe_msg:
                 return fin({"ok": True, "state": "none", "v": cur, "msg": ""})
             return {"ok": True, "state": "none", "v": cur, "msg": "Hay una versión nueva que necesita actualizar el programa (Gax.exe). Descarga la versión nueva desde GitHub."}
-        staged = int((_jload(_upd("meta.json")) or {}).get("v") or 0)
-        bad = int((_jload(_upd("bad.json")) or {}).get("v") or 0)
-        if v <= max(cur, staged):
+        if v <= cur:
             return fin({"ok": True, "state": "none", "v": cur, "msg": "Estás al día (versión %d)." % cur})
         if v <= bad:
             return fin({"ok": True, "state": "none", "v": cur, "msg": "La versión %d falló antes. Esperando una más nueva." % v})
+        if staged >= v:
+            if mode == "install":
+                return fin({"ok": True, "state": "ready", "v": v, "msg": "Versión %d lista. Se aplica al reabrir la app." % v})
+            return fin({"ok": True, "state": "none", "v": cur, "msg": "Estás al día (versión %d)." % cur})
         data = _http_get(RAW % (repo, "win.html"))
         if hashlib.sha256(data).hexdigest() != sha:
             raise ValueError("la descarga no coincide con version.json")
@@ -799,8 +834,29 @@ class Api:
         except Exception as e:
             return {"ok": False, "msg": "Guardado, pero no se pudo conectar: " + str(e)}
 
-    def check_update(self, repo=None):
-        return do_check_update(repo)
+    def check_update(self, repo=None, mode=None):
+        return do_check_update(repo, mode)
+
+    def apply_update(self):
+        """Aplica ya lo descargado: con Gax.exe nuevo se cierra y se reabre solo; si es solo la pantalla, se recarga."""
+        try:
+            if apply_pending_exe():
+                def bye():
+                    time.sleep(0.4)
+                    for w in list(webview.windows):
+                        try:
+                            w.destroy()
+                        except Exception:
+                            pass
+                threading.Thread(target=bye, daemon=True).start()
+                return {"ok": True, "restart": True}
+            idx, RUN_V[0] = pick_index(BUNDLED[0])
+            w = webview.windows[0]
+            url = pathlib.Path(idx).resolve().as_uri()
+            threading.Timer(0.3, lambda: w.load_url(url)).start()
+            return {"ok": True, "restart": False}
+        except Exception as e:
+            return {"ok": False, "msg": str(e)}
 
     def ui_ready(self):
         meta = _jload(_upd("meta.json"))
