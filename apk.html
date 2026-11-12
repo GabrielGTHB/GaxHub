@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=18;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=19;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -155,7 +155,7 @@ button:disabled{opacity:.45;cursor:default}
 /* entrada */
 #intro{display:none}
 html.intro{overflow:hidden}
-html.intro #intro{display:block;position:fixed;inset:0;z-index:2000;cursor:pointer}
+html.intro #intro{display:block;position:fixed;inset:0;z-index:2000}
 #intro .ih{position:absolute;left:0;right:0;height:50.5%;background:var(--bg);transition:transform .6s cubic-bezier(.7,0,.2,1)}
 #intro .top{top:0}#intro .bot{bottom:0}
 #intro .ic{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
@@ -399,7 +399,7 @@ button.pri:active{transform:scale(.97)}
 #pd .sec{display:none}
 #arpd{width:min(560px,94vw)}
 .arq{width:100%;box-sizing:border-box;margin:0 0 10px;padding:11px 14px;border-radius:999px;border:1px solid var(--b);background:var(--s2);color:var(--t);font:inherit}
-.arl{max-height:55vh;overflow:auto}
+.arl{max-height:55vh;overflow:auto}.arso{margin:0 0 10px}.arso .pill i:empty{display:none}
 .ar{display:grid;grid-template-columns:1.1fr 1.3fr 1fr 12px;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--b);font-size:.9em}
 .ar span{color:var(--m);font-family:ui-monospace,monospace;font-size:.85em}
 .ar i{font-style:normal;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -703,13 +703,12 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <div class="ibar"><i></i></div>
 <div class="itip" id="itip"></div>
 </div>
-<div class="ihint">🔊 Toca para entrar</div>
 </div>
 <div class="wrap">
 <header>
 <div class="brand"><div class="logo"><svg viewBox="0 0 512 512"><g fill="none" stroke="var(--at)" stroke-width="40" stroke-linecap="round"><path d="M100 210a230 230 0 0 1 312 0"/><path d="M160 278a145 145 0 0 1 192 0"/></g><circle cx="256" cy="352" r="30" fill="var(--at)"/></svg></div>
 <div><h1 id="appname">Gax</h1><p class="sub"><span class="sn"><b id="s0">0</b> clientes</span><span class="sn"><b id="s2">0</b> vencidos</span><span class="sn"><b id="s3">0</b> cortados</span><span class="sn">por cobrar <b id="s4">0</b></span><span class="syn" id="syn" hidden></span></p></div></div>
-<div class="btns"><button class="pri" onclick="openForm()">＋ Nuevo cliente</button><button class="more" onclick="openMore(this)" aria-label="Más opciones" title="Más"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
+<div class="btns"><button class="pri" onclick="openForm()">＋ Nuevo cliente</button><button class="arpb" onclick="openArp()" title="ARP del MikroTik" aria-label="ARP del MikroTik">ARP</button><button class="more" onclick="openMore(this)" aria-label="Más opciones" title="Más"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
 </header>
 <div class="tools">
 <input id="q" type="search" placeholder="Buscar cliente, IP, teléfono o queue" oninput="render(true)">
@@ -732,7 +731,6 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 </div>
 
 <div id="mm" class="menu" hidden>
-<button onclick="mmGo(openArp)">ARP del MikroTik</button>
 <button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openCfg)">Ajustes</button>
 </div>
 <button class="fab pri" onclick="openForm()" aria-label="Nuevo cliente">＋</button>
@@ -807,7 +805,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <p class="note" id="ud-s" aria-live="polite"></p>
 <div class="foot"><button id="ud-no" type="button" onclick="updLater()">Ahora no</button><button id="ud-go" class="pri" type="button" onclick="updInstall()">Instalar ahora</button></div>
 </dialog>
-<dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
+<dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arso" class="pills arso" aria-label="Ordenar"><button class="pill" data-k="ip" onclick="arpSort('ip')">IP</button><button class="pill" data-k="mac" onclick="arpSort('mac')">MAC</button><button class="pill" data-k="cli" onclick="arpSort('cli')">Cliente</button><button class="pill" data-k="if" onclick="arpSort('if')">Interfaz</button><button class="pill" data-k="st" onclick="arpSort('st')">Estado</button></div><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
 <dialog id="pd">
 <h2>Personalizar</h2>
 <div class="opts">
@@ -1130,10 +1128,23 @@ $('p-sndu').onchange=e=>{setPref('sndUi',e.target.checked);if(e.target.checked)s
 $('p-name').oninput=e=>{P.name=e.target.value.slice(0,20);savePrefs();applyName()};
 $('p-prev').onclick=()=>{$('pd').close();setTimeout(()=>playIntro(openPrefs),240)};
 let ARP=[];
+let ASORT='ip',ADIR=1;try{const s=JSON.parse(localStorage.getItem('gax.arps')||'null');if(s&&['ip','mac','cli','if','st'].indexOf(s.k)>=0){ASORT=s.k;ADIR=s.d===-1?-1:1}}catch(e){}
+const ipN=s=>{const m=/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(String(s||''));return m?((+m[1]*256+ +m[2])*256+ +m[3])*256+ +m[4]:Infinity};
+const stR=s=>s==='reachable'||s==='permanent'?0:(s==='stale'||s==='delay'||s==='probe'?1:2);
+const sCmp=(a,b)=>String(a||'').localeCompare(String(b||''),'es',{sensitivity:'base',numeric:true});
+function arpCmp(by){return(a,b)=>{let x=0;
+if(ASORT==='ip')x=ipN(a.address)-ipN(b.address);
+else if(ASORT==='mac')x=sCmp(a.mac,b.mac);
+else if(ASORT==='if')x=sCmp(a.interface,b.interface);
+else if(ASORT==='st')x=stR(a.status)-stR(b.status);
+else if(ASORT==='cli'){const p=by[a.address]||'',q=by[b.address]||'';if(!p!==!q)return p?-1:1;x=sCmp(p,q)}
+return (x*ADIR)||(ipN(a.address)-ipN(b.address))||0}}
+function arpSort(k){if(ASORT===k)ADIR=-ADIR;else{ASORT=k;ADIR=1}try{localStorage.setItem('gax.arps',JSON.stringify({k:ASORT,d:ADIR}))}catch(e){}paintArp()}
 const escA=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 function openArp(){$('arpd').showModal();loadArp()}
-function paintArp(){const q=$('arq').value.trim().toLowerCase(),by={};clients.forEach(c=>{if(c.ip)by[c.ip]=c.name});
-const rows=ARP.filter(r=>!q||(r.address+' '+r.mac+' '+r.interface+' '+(by[r.address]||'')).toLowerCase().indexOf(q)>=0);
+function paintArp(){[].forEach.call(document.querySelectorAll('#arso .pill'),b=>{const on=b.dataset.k===ASORT;b.classList.toggle('on',on);let i=b.querySelector('i');if(!i){i=document.createElement('i');b.appendChild(i)}i.textContent=on?(ADIR>0?'▲':'▼'):''});
+const q=$('arq').value.trim().toLowerCase(),by={};clients.forEach(c=>{if(c.ip)by[c.ip]=c.name});
+const rows=ARP.filter(r=>!q||(r.address+' '+r.mac+' '+r.interface+' '+(by[r.address]||'')).toLowerCase().indexOf(q)>=0).sort(arpCmp(by));
 $('arl').innerHTML=rows.length?rows.map(r=>'<div class="ar"><b>'+escA(r.address)+'</b><span>'+escA(r.mac||'-')+'</span><i>'+escA(by[r.address]||r.interface)+'</i><em class="'+(r.status==='reachable'||r.status==='permanent'?'on':'')+'"></em></div>').join(''):'<p class="note">Sin resultados</p>'}
 function loadArp(){$('arl').innerHTML='<p class="note">Cargando…</p>';fetch('api/router/arp').then(r=>r.json()).then(d=>{if(d.error){$('arl').innerHTML='<p class="note">'+escA(d.error)+'</p>';return}ARP=d.arp||[];paintArp()}).catch(()=>{$('arl').innerHTML='<p class="note">No disponible. Si estás en Windows, actualiza el programa.</p>'})}
 $('arq').addEventListener('input',paintArp);
@@ -1146,18 +1157,16 @@ const introHTML=$('intro').outerHTML;
 let introActive=document.documentElement.classList.contains('intro'),introQ=[];
 function afterIntro(f){if(introActive)introQ.push(f);else f()}
 function runIntro(done,boot){const h=document.documentElement,el=$('intro');let over=false,played=false,kd,tm,wt;
-const MIN=1500,WAIT=2200;
+const MIN=1500;
 const a=P.sndIntro?actxGet():null;buildName();
 /* el sonido solo arranca junto con la animacion; si el audio estaba bloqueado nunca suena tarde */
 const play=()=>{if(played||over||!P.sndIntro)return;played=true;sfx('intro')};
 if(a){const pl=()=>{if(a.state==='running')play()};a.resume().then(pl).catch(()=>{});pl()}
-const end=()=>{if(over)return;over=true;clearTimeout(tm);clearTimeout(wt);document.removeEventListener('keydown',kd);el.classList.remove('wait');el.classList.add('out');
+const end=()=>{if(over)return;over=true;clearTimeout(tm);el.classList.remove('wait');el.classList.add('out');
 if(boot){introActive=false;startEnter();introQ.splice(0).forEach(f=>f())}
 setTimeout(()=>{el.remove();h.classList.remove('intro');if(done)done()},560)};
-const go=()=>{play();end()};
-/* la entrada dura 1,5 s para que se vea y se oiga completa; si el celular aun bloquea el audio, espera un toque unos segundos */
-tm=setTimeout(()=>{if(a&&!played&&P.sndIntro){el.classList.add('wait');wt=setTimeout(end,WAIT)}else end()},MIN);
-kd=()=>go();el.addEventListener('pointerup',go);document.addEventListener('keydown',kd)}
+/* la entrada dura 1,5 s y se cierra sola, sin pedir ningun toque */
+tm=setTimeout(end,MIN)}
 function playIntro(done){const h=document.documentElement;if(!$('intro'))document.body.insertAdjacentHTML('afterbegin',introHTML);h.dataset.intro=P.intro;h.classList.add('intro');runIntro(done,false)}
 /* ===== nombre del panel ===== */
 const appName=()=>(P.name||'').trim()||'Gax';
