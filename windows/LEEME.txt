@@ -98,3 +98,10 @@ NOVEDADES v15 (el programa se actualiza solo)
 - Si una pantalla nueva necesita un programa mas nuevo (native_min en version.json), no se aplica hasta que el .exe se actualice.
 - Solo funciona con Gax.exe (no con iniciar.bat). Esta es la ultima vez que debes crear el .exe a mano con crear-exe.bat.
 - Cada vez que publiques un .exe nuevo, sube NATIVE_V en app.py (ver COMO-PUBLICAR.md en el repositorio).
+
+
+NOVEDADES v19
+- Gax ya no queda suelto: la primera vez que abres Gax.exe crea una carpeta "Gax" al lado, se copia ahi junto con sus
+  datos (clientes.db, config.json, datos-ventana), crea un acceso directo "Gax" en el Escritorio y se reabre desde la carpeta.
+  El Gax.exe y los datos de antes se borran solos despues de cerrar. Si algo falla al copiar, no toca nada y sigue donde estaba.
+- Si Gax.exe ya esta dentro de una carpeta llamada "Gax", no hace nada.

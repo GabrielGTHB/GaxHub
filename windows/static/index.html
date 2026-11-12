@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=18;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=20;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -94,7 +94,7 @@ pre{margin:0;padding:12px;border-radius:var(--rb);background:var(--bg);border:1p
 /* ---- animaciones, orden y personalizacion ---- */
 .row{transition:background .15s,box-shadow .2s,transform .2s}
 .bar2 i{transform-origin:left}
-html.anim .row:hover{transform:translateX(3px);box-shadow:0 8px 20px -12px rgba(0,0,0,.4)}
+html.anim .row:hover{transform:var(--rh,translateX(3px));box-shadow:0 8px 20px -12px rgba(0,0,0,.4)}
 html.anim .st{transition:transform .2s,box-shadow .2s}
 html.anim .st:hover{transform:translateY(-3px);box-shadow:0 10px 22px -14px rgba(0,0,0,.45)}
 html.anim button:active{transform:scale(.95)}
@@ -106,14 +106,14 @@ html.enter .wrap>header{animation:fdown .6s cubic-bezier(.2,.8,.2,1) both}
 html.enter .tools{animation:fup .5s cubic-bezier(.2,.8,.2,1) .2s both}
 html.enter .pills{animation:fup .5s cubic-bezier(.2,.8,.2,1) .27s both}
 html.enter .head{animation:fup .5s cubic-bezier(.2,.8,.2,1) .34s both}
-@keyframes fdown{from{opacity:0;transform:translateY(-18px)}}
-@keyframes fup{from{opacity:0;transform:translateY(14px)}}
-html.anim dialog[open]{animation:dIn .3s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes fdown{from{opacity:0;transform:var(--adn,translateY(-18px));filter:var(--asf,none)}}
+@keyframes fup{from{opacity:0;transform:var(--aup,translateY(14px));filter:var(--asf,none)}}
+html.anim dialog[open]{animation:dIn var(--dd,.3s) var(--de,cubic-bezier(.2,.9,.3,1.15))}
 html.anim dialog[open]::backdrop{animation:bIn .3s both}
 html.anim dialog.closing{animation:dOut .17s ease-in forwards}
 html.anim dialog.closing::backdrop{animation:bOut .17s forwards}
-@keyframes dIn{from{opacity:0;transform:translateY(20px) scale(.94)}}
-@keyframes dOut{to{opacity:0;transform:translateY(10px) scale(.96)}}
+@keyframes dIn{from{opacity:0;transform:var(--ast,translateY(20px) scale(.94));filter:var(--asf,none)}}
+@keyframes dOut{to{opacity:0;transform:var(--dot,translateY(10px) scale(.96))}}
 @keyframes bIn{from{opacity:0}}
 @keyframes bOut{to{opacity:0}}
 /* orden */
@@ -155,7 +155,7 @@ button:disabled{opacity:.45;cursor:default}
 /* entrada */
 #intro{display:none}
 html.intro{overflow:hidden}
-html.intro #intro{display:block;position:fixed;inset:0;z-index:2000;cursor:pointer}
+html.intro #intro{display:block;position:fixed;inset:0;z-index:2000}
 #intro .ih{position:absolute;left:0;right:0;height:50.5%;background:var(--bg);transition:transform .6s cubic-bezier(.7,0,.2,1)}
 #intro .top{top:0}#intro .bot{bottom:0}
 #intro .ic{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
@@ -275,7 +275,7 @@ select{padding:8px 10px;font-size:14px}
 .row{background:none;border:0;border-bottom:1px solid var(--b);border-radius:0;padding:var(--rp) 10px;margin:0;gap:12px;transition:background .15s,opacity .4s ease,transform .4s cubic-bezier(.2,.8,.2,1)}
 .row:hover{background:var(--s2);border-bottom-color:transparent;border-radius:var(--rb)}
 html.anim .row:hover{transform:none;box-shadow:none}
-.row.pre{opacity:0;transform:translateY(12px)}
+.row.pre{opacity:0;transform:var(--pre,translateY(12px))}
 .row{content-visibility:auto;contain-intrinsic-size:auto 62px}
 .av{width:36px;height:36px;font-size:13px;position:relative;transition:transform .25s cubic-bezier(.2,1.5,.4,1)}
 .av::after{content:"";position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:var(--sc);border:2px solid var(--bg)}
@@ -305,7 +305,7 @@ dialog h2{font-size:18px;margin-bottom:12px}
 .menu{transform-origin:top right;padding:5px;min-width:200px}
 .menu button{padding:9px 12px;border-radius:8px}
 html.anim .menu:not([hidden]){animation:mIn .2s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes mIn{from{opacity:0;transform:scale(.92) translateY(-6px)}}
+@keyframes mIn{from{opacity:0;transform:var(--mst,scale(.92) translateY(-6px))}}
 html.anim dialog[open] .g>*,html.anim dialog[open] .opts>*{animation:fup .38s cubic-bezier(.2,.8,.2,1) both}
 html.anim dialog[open] .g>:nth-child(1),html.anim dialog[open] .opts>:nth-child(1){animation-delay:.03s}
 html.anim dialog[open] .g>:nth-child(2),html.anim dialog[open] .opts>:nth-child(2){animation-delay:.06s}
@@ -399,7 +399,7 @@ button.pri:active{transform:scale(.97)}
 #pd .sec{display:none}
 #arpd{width:min(560px,94vw)}
 .arq{width:100%;box-sizing:border-box;margin:0 0 10px;padding:11px 14px;border-radius:999px;border:1px solid var(--b);background:var(--s2);color:var(--t);font:inherit}
-.arl{max-height:55vh;overflow:auto}
+.arl{max-height:55vh;overflow:auto}.arso{margin:0 0 10px}.arso .pill i:empty{display:none}
 .ar{display:grid;grid-template-columns:1.1fr 1.3fr 1fr 12px;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--b);font-size:.9em}
 .ar span{color:var(--m);font-family:ui-monospace,monospace;font-size:.85em}
 .ar i{font-style:normal;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -484,12 +484,13 @@ const NT=[['nieve','#f5f7fb','#ffffff','#edf1f8','#1b2333','#667089','#dbe1ee','
 const TH=['auto','light','nieve','menta','lavanda','sepia','dark','oled','midnight','bosque','atardecer','dracula','oceano','nord','carbon','cereza'],DK=['dark','oled','midnight','bosque','atardecer','dracula','oceano','nord','carbon','cereza'];
 (function(){const L='--ok:#15803d;--okb:#dcf5e4;--wn:#a16207;--wnb:#fdefc6;--bd:#b91c1c;--bdb:#fbe0e0',D='--ok:#6ee7a0;--okb:#11301f;--wn:#fbbf24;--wnb:#33280c;--bd:#fca5a5;--bdb:#3a1818';
 const st=document.createElement('style');st.textContent=NT.map(x=>':root[data-theme="'+x[0]+'"]{color-scheme:'+(x[9]?'dark':'light')+';--bg:'+x[1]+';--s:'+x[2]+';--s2:'+x[3]+';--t:'+x[4]+';--m:'+x[5]+';--b:'+x[6]+';--a:'+x[7]+';--at:'+x[8]+';'+(x[9]?D:L)+'}').join('');document.head.appendChild(st)})();
-const DEFP={theme:'auto',accent:'',density:'normal',round:'normal',zoom:1,anim:true,intro:'ondas',name:'Gax',sndIntro:true,sndIntroType:'bienvenida',sndUi:true,hov:true,vol:.55,pack:'cristal',btn:null,sort:'nombre',dir:1};
+const DEFP={theme:'auto',accent:'',density:'normal',round:'normal',zoom:1,anim:true,intro:'ondas',name:'Gax',sndIntro:true,sndIntroType:'bienvenida',sndUi:true,hov:true,vol:.55,pack:'cristal',btn:null,sort:'nombre',dir:1,astyle:'clasico'};
 let P=Object.assign({},DEFP);
 try{const s=JSON.parse(localStorage.getItem('panelisp.prefs2')||'{}');Object.assign(P,s);if(s.snd===false&&s.sndIntro===undefined){P.sndIntro=P.sndUi=P.hov=false}}catch(e){}
 if(!/^#[0-9a-f]{6}$/i.test(P.accent||''))P.accent='';
 P.name=String(P.name==null?'Gax':P.name).slice(0,20);
 if(['ondas','zoom','cortina','persianas','desenfoque','giro','latido','none'].indexOf(P.intro)<0)P.intro='ondas';
+if(['clasico', 'suave', 'deslizar', 'zoom', 'rebote', 'cascada', 'giro3d', 'desenfoque', 'elastico', 'neon'].indexOf(P.astyle)<0)P.astyle='clasico';
 if(TH.indexOf(P.theme)<0)P.theme='auto';
 P.zoom=Math.min(1.25,Math.max(.85,+P.zoom||1));P.vol=Math.min(1,Math.max(0,+P.vol));if(isNaN(P.vol))P.vol=.4;
 function fixP(){P.btn=P.btn&&typeof P.btn==='object'?P.btn:{};['pay','back','cut'].forEach(k=>{if(!/^#[0-9a-f]{6}$/i.test(P.btn[k]||''))delete P.btn[k]});if(['cristal','sutil','retro','gota','teclas'].indexOf(P.pack)<0)P.pack='cristal';if(['bienvenida','campanas','ascenso','pulso','arcade','brisa','latido'].indexOf(P.sndIntroType)<0)P.sndIntroType='bienvenida'}fixP();if(P.v!==16){P.hov=true;P.v=16;if(P.sndIntroType==='campanas')P.sndIntroType='bienvenida';savePrefs()}
@@ -507,6 +508,20 @@ function paintAccent(c0){const s=document.documentElement.style;let c='';
 if(c0){c=isDark()?mixc(c0,.25):c0;s.setProperty('--a',c);s.setProperty('--at',lumc(c)>.4?'#04201d':'#ffffff')}else{s.removeProperty('--a');s.removeProperty('--at')}
 if(!(P.btn&&P.btn.back)){if(c)s.setProperty('--t-back',lumc(c)>.4?'#101010':'#ffffff');else paintBtnOne('back',null)}}
 function zoomEff(z){const w=window.innerWidth||360;return +(z*(w<=700?Math.max(.85,Math.min(1,w/360)):1)).toFixed(3)}
+const AVARS=['--ast','--dot','--asf','--dd','--de','--adn','--aup','--mst','--rh','--pre'];
+/* 10 estilos de animacion: v = variables de CSS (dialogos, bloques, menu, hover); rf/rt/rd/rs/re = entrada de las filas */
+const ASTY={
+clasico:{n:'Clásico',v:{}},
+suave:{n:'Suave',v:{'--ast':'translateY(6px) scale(.99)','--dot':'translateY(4px) scale(.99)','--adn':'translateY(-6px)','--aup':'translateY(6px)','--mst':'translateY(-3px)','--rh':'translateX(1px)','--pre':'translateY(5px)','--dd':'.26s','--de':'ease-out'},rf:{transform:'translateY(5px)'},rd:380,rs:28,re:'ease-out'},
+deslizar:{n:'Deslizar',v:{'--ast':'translateY(70px)','--dot':'translateY(50px)','--adn':'translateX(-34px)','--aup':'translateX(-24px)','--mst':'translateX(-14px)','--rh':'translateX(7px)','--pre':'translateX(-24px)','--dd':'.38s','--de':'cubic-bezier(.2,.9,.2,1)'},rf:{transform:'translateX(-48px)'},rd:460,rs:45,re:'cubic-bezier(.2,.9,.2,1)'},
+zoom:{n:'Zoom',v:{'--ast':'scale(.7)','--dot':'scale(.85)','--adn':'scale(.92)','--aup':'scale(.92)','--mst':'scale(.7)','--rh':'scale(1.012)','--pre':'scale(.94)','--dd':'.32s','--de':'cubic-bezier(.2,.9,.3,1.2)'},rf:{transform:'scale(.6)'},rd:420,rs:38},
+rebote:{n:'Rebote',v:{'--ast':'translateY(46px) scale(.82)','--dot':'translateY(20px) scale(.9)','--adn':'translateY(-40px)','--aup':'translateY(36px)','--mst':'translateY(-14px) scale(.85)','--rh':'translateY(-2px)','--pre':'translateY(30px)','--dd':'.5s','--de':'cubic-bezier(.34,1.9,.5,1)'},rf:{transform:'translateY(44px) scale(.9)'},rd:560,rs:55,re:'cubic-bezier(.34,1.9,.5,1)'},
+cascada:{n:'Cascada',v:{'--ast':'translateY(-34px)','--dot':'translateY(-16px)','--adn':'translateY(-26px)','--aup':'translateY(-26px)','--mst':'translateY(-20px)','--rh':'translateX(3px)','--pre':'translateY(-20px)','--dd':'.4s','--de':'cubic-bezier(.2,.8,.2,1)'},rf:{transform:'translateY(-34px)'},rd:520,rs:95},
+giro3d:{n:'Giro 3D',v:{'--ast':'perspective(900px) rotateY(-38deg) scale(.9)','--dot':'perspective(900px) rotateY(28deg) scale(.92)','--adn':'perspective(800px) rotateX(-40deg)','--aup':'perspective(800px) rotateX(40deg)','--mst':'perspective(500px) rotateX(-45deg)','--rh':'perspective(800px) rotateX(2.5deg) translateX(2px)','--pre':'perspective(800px) rotateX(40deg)','--dd':'.5s','--de':'cubic-bezier(.2,.8,.2,1)'},rf:{transform:'perspective(800px) rotateX(-75deg) translateY(18px)'},rd:560,rs:50},
+desenfoque:{n:'Desenfoque',v:{'--ast':'scale(1.06)','--dot':'scale(1.04)','--adn':'scale(1.03)','--aup':'scale(1.03)','--mst':'scale(1.05)','--rh':'translateX(2px)','--pre':'scale(1.02)','--asf':'blur(14px)','--dd':'.4s','--de':'ease-out'},rf:{transform:'scale(1.04)',filter:'blur(14px)'},rt:{filter:'blur(0)'},rd:520,rs:40,re:'ease-out'},
+elastico:{n:'Elástico',v:{'--ast':'scaleX(1.2) scaleY(.6)','--dot':'scaleX(1.1) scaleY(.8)','--adn':'scaleX(1.12) scaleY(.7)','--aup':'scaleX(1.12) scaleY(.7)','--mst':'scaleX(1.3) scaleY(.6)','--rh':'scaleX(1.01) scaleY(1.02)','--pre':'scaleY(.7)','--dd':'.55s','--de':'cubic-bezier(.25,1.7,.4,.95)'},rf:{transform:'scaleX(1.25) scaleY(.55)'},rd:600,rs:45,re:'cubic-bezier(.25,1.7,.4,.95)'},
+neon:{n:'Neón',v:{'--ast':'scale(.96)','--dot':'scale(.97)','--adn':'translateY(-8px)','--aup':'translateY(8px)','--mst':'scale(.96)','--rh':'translateX(3px)','--pre':'translateY(6px)','--asf':'drop-shadow(0 0 16px var(--a)) brightness(1.5)','--dd':'.45s','--de':'ease-out'},rf:a=>({transform:'scale(.97)',boxShadow:'0 0 26px 3px '+a}),rt:{boxShadow:'0 0 0 0 transparent'},rd:650,rs:50,re:'ease-out'}
+};
 function applyPrefs(){
 const h=document.documentElement,s=h.style;
 if(P.theme!=='auto')h.setAttribute('data-theme',P.theme);else h.removeAttribute('data-theme');
@@ -515,6 +530,7 @@ const D={compact:['7px','5px'],normal:['12px','8px'],comfy:['18px','12px']}[P.de
 const R={sharp:['6px','4px'],normal:['14px','10px'],round:['24px','18px']}[P.round]||['14px','10px'];
 s.setProperty('--rp',D[0]);s.setProperty('--rg',D[1]);s.setProperty('--r',R[0]);s.setProperty('--rb',R[1]);s.setProperty('--zoom',zoomEff(P.zoom));
 h.classList.toggle('anim',!!P.anim);
+{const S=ASTY[P.astyle]||ASTY.clasico;AVARS.forEach(k=>{const v=S.v&&S.v[k];if(v!=null)s.setProperty(k,v);else s.removeProperty(k)})}
 ['pay','back','cut'].forEach(k=>paintBtnOne(k,P.btn[k]||null));
 const m=document.querySelector('meta[name=theme-color]');if(m)m.content=P.accent||'#0f766e'}
 applyPrefs();
@@ -535,13 +551,12 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <div class="ibar"><i></i></div>
 <div class="itip" id="itip"></div>
 </div>
-<div class="ihint">🔊 Toca para entrar</div>
 </div>
 <div class="wrap">
 <header>
 <div class="brand"><div class="logo"><svg viewBox="0 0 512 512"><g fill="none" stroke="var(--at)" stroke-width="40" stroke-linecap="round"><path d="M100 210a230 230 0 0 1 312 0"/><path d="M160 278a145 145 0 0 1 192 0"/></g><circle cx="256" cy="352" r="30" fill="var(--at)"/></svg></div>
 <div><h1 id="appname">Gax</h1><p class="sub"><span class="sn"><b id="s0">0</b> clientes</span><span class="sn"><b id="s2">0</b> vencidos</span><span class="sn"><b id="s3">0</b> cortados</span><span class="sn">por cobrar <b id="s4">0</b></span><span class="syn" id="syn" hidden></span></p></div></div>
-<div class="btns"><button class="pri" onclick="openForm()">＋ Nuevo cliente</button><button class="more" onclick="openMore(this)" aria-label="Más opciones" title="Más"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
+<div class="btns"><button class="pri" onclick="openForm()">＋ Nuevo cliente</button><button class="arpb" onclick="openArp()" title="ARP del MikroTik" aria-label="ARP del MikroTik">ARP</button><button class="more" onclick="openMore(this)" aria-label="Más opciones" title="Más"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
 </header>
 <div class="tools">
 <input id="q" type="search" placeholder="Buscar cliente, IP, teléfono o queue" oninput="render(true)">
@@ -564,7 +579,6 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 </div>
 
 <div id="mm" class="menu" hidden>
-<button onclick="mmGo(openArp)">ARP del MikroTik</button>
 <button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openCfg)">Ajustes</button>
 </div>
 <button class="fab pri" onclick="openForm()" aria-label="Nuevo cliente">＋</button>
@@ -639,7 +653,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <p class="note" id="ud-s" aria-live="polite"></p>
 <div class="foot"><button id="ud-no" type="button" onclick="updLater()">Ahora no</button><button id="ud-go" class="pri" type="button" onclick="updInstall()">Instalar ahora</button></div>
 </dialog>
-<dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
+<dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arso" class="pills arso" aria-label="Ordenar"><button class="pill" data-k="ip" onclick="arpSort('ip')">IP</button><button class="pill" data-k="mac" onclick="arpSort('mac')">MAC</button><button class="pill" data-k="cli" onclick="arpSort('cli')">Cliente</button><button class="pill" data-k="if" onclick="arpSort('if')">Interfaz</button><button class="pill" data-k="st" onclick="arpSort('st')">Estado</button></div><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
 <dialog id="pd">
 <h2>Personalizar</h2>
 <div class="opts">
@@ -651,7 +665,9 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <div class="opt"><label>Densidad</label><div class="seg" data-k="density"><button data-v="compact">Compacta</button><button data-v="normal">Normal</button><button data-v="comfy">Amplia</button></div></div>
 <div class="opt"><label>Esquinas</label><div class="seg" data-k="round"><button data-v="sharp">Rectas</button><button data-v="normal">Normales</button><button data-v="round">Redondas</button></div></div>
 <div class="opt"><label for="p-zoom">Tamaño</label><div class="rg"><input id="p-zoom" type="range" min=".85" max="1.25" step=".05"><output id="p-zoomv"></output></div></div>
+<div class="sec">Animaciones</div>
 <div class="opt"><label for="p-anim">Animaciones</label><label class="tg"><input id="p-anim" type="checkbox"><span></span></label></div>
+<div class="opt"><label>Estilo</label><div class="rg"><div class="seg" data-k="astyle"><button data-v="clasico">Clásico</button><button data-v="suave">Suave</button><button data-v="deslizar">Deslizar</button><button data-v="zoom">Zoom</button><button data-v="rebote">Rebote</button><button data-v="cascada">Cascada</button><button data-v="giro3d">Giro 3D</button><button data-v="desenfoque">Desenfoque</button><button data-v="elastico">Elástico</button><button data-v="neon">Neón</button></div><button class="sm" id="p-aprev" type="button">Ver</button></div></div>
 <div class="sec">Al abrir</div>
 <div class="opt"><label>Efecto</label><div class="rg"><div class="seg" data-k="intro"><button data-v="ondas">Ondas</button><button data-v="zoom">Zoom</button><button data-v="cortina">Cortina</button><button data-v="persianas">Persianas</button><button data-v="desenfoque">Desenfoque</button><button data-v="giro">Giro</button><button data-v="latido">Latido</button><button data-v="none">Ninguno</button></div><button class="sm" id="p-prev">Ver</button></div></div>
 <div class="opt"><label for="p-isnd">Sonido</label><select id="p-isnd"><option value="bienvenida">Bienvenida</option><option value="campanas">Campanas</option><option value="ascenso">Ascenso</option><option value="pulso">Pulso</option><option value="arcade">Arcade</option><option value="brisa">Brisa</option><option value="latido">Latido</option><option value="none">Sin sonido</option></select></div>
@@ -739,11 +755,16 @@ function setNum(el,to,fmt,delay){clearTimeout(el._tm);cancelAnimationFrame(el._r
 if(!P.anim||(from===to&&!delay)){el.textContent=fmt(to);return}
 const go=()=>{const t0=performance.now(),dur=700;const step=now=>{const k=Math.min(1,(now-t0)/dur);el.textContent=fmt(k<1?Math.round(from+(to-from)*(1-Math.pow(1-k,3))):to);if(k<1)el._raf=requestAnimationFrame(step)};el._raf=requestAnimationFrame(step)};
 if(delay)el._tm=setTimeout(go,delay);else go()}
+function rowIn(r,d,acc){const S=ASTY[P.astyle]||ASTY.clasico;let f=S.rf||{transform:'translateY(16px) scale(.98)'};if(typeof f==='function')f=f(acc);
+r.animate([Object.assign({opacity:0},f),Object.assign({opacity:1,transform:'none'},S.rt||{})],{duration:S.rd||420,delay:d,easing:S.re||'cubic-bezier(.2,.8,.2,1)',fill:'backwards'})}
+function previewAnim(){if(!P.anim)return;const acc=getComputedStyle(document.documentElement).getPropertyValue('--a').trim()||'#0f766e',S=ASTY[P.astyle]||ASTY.clasico;
+[...$('rows').children].slice(0,10).forEach((r,i)=>rowIn(r,i*(S.rs||40),acc));
+const pd=$('pd');pd.style.animation='none';void pd.offsetWidth;pd.style.animation=''}
 function animRows(prev,dl){if(!P.anim)return;const E='cubic-bezier(.2,.8,.2,1)',acc=getComputedStyle(document.documentElement).getPropertyValue('--a').trim()||'#0f766e';let ni=0;
 [...$('rows').children].slice(0,40).forEach((r,i)=>{const p=prev[r.dataset.id],bar=r.querySelector('.bar2 i');
 if(p){const dy=p.y-r.getBoundingClientRect().top;if(Math.abs(dy)>3)r.animate([{transform:`translateY(${dy}px)`},{transform:'none'}],{duration:420,easing:E});
 if(p.sig!==r.dataset.sig)r.animate([{boxShadow:`0 0 0 0 ${acc}`},{boxShadow:'0 0 0 7px transparent'}],{duration:900,easing:'ease-out'})}
-else if(i<14){const d=dl+ni++*40;r.animate([{opacity:0,transform:'translateY(16px) scale(.98)'},{opacity:1,transform:'none'}],{duration:420,delay:d,easing:E,fill:'backwards'});
+else if(i<14){const d=dl+ni++*((ASTY[P.astyle]||ASTY.clasico).rs||40);rowIn(r,d,acc);
 if(bar)bar.animate([{transform:'scaleX(0)'},{transform:'none'}],{duration:700,delay:d+200,easing:E,fill:'backwards'})}})}
 function reveal(){if(rio)rio.disconnect();if(!P.anim||!('IntersectionObserver' in window))return;
 rio=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.remove('pre');rio.unobserve(en.target)}}),{rootMargin:'0px 0px -4% 0px'});
@@ -944,8 +965,8 @@ $('p-zoom').value=P.zoom;$('p-zoomv').textContent=Math.round(P.zoom*100)+'%';
 $('p-anim').checked=P.anim;$('p-sndu').checked=P.sndUi;$('p-name').value=P.name;$('p-hov').checked=P.hov;
 $('p-isnd').value=P.sndIntro?P.sndIntroType:'none';
 $('p-vol').value=P.vol;$('p-volv').textContent=Math.round(P.vol*100)+'%';
-$('p-prev').disabled=P.intro==='none'||!P.anim;$('p-theme').value=P.theme;$('p-pack').value=P.pack;syncBtn()}
-function setPref(k,v){P[k]=v;savePrefs();applyPrefs();syncPrefUI()}
+$('p-prev').disabled=P.intro==='none'||!P.anim;$('p-aprev').disabled=!P.anim;$('p-theme').value=P.theme;$('p-pack').value=P.pack;syncBtn()}
+function setPref(k,v){P[k]=v;savePrefs();applyPrefs();syncPrefUI();if(k==='astyle')setTimeout(previewAnim,20)}
 function openPrefs(){syncPrefUI();$('pd').showModal()}
 function resetPrefs(){P=Object.assign({},DEFP);P.btn={};savePrefs();applyPrefs();sortBy=P.sort;sortDir=P.dir;syncPrefUI();syncSortUI();applyName();render();sfx('ok')}
 $('pd').addEventListener('click',e=>{const b=e.target.closest('.seg button');if(b){setPref(b.parentNode.dataset.k,b.dataset.v);return}const w=e.target.closest('.sw');if(w)setPref('accent',w.dataset.c)});
@@ -957,15 +978,29 @@ $('p-vol').addEventListener('input',e=>{P.vol=+e.target.value;$('p-volv').textCo
 $('p-vol').addEventListener('change',()=>{savePrefs();sfx('ok',true)});
 $('p-hov').onchange=e=>{setPref('hov',e.target.checked);if(e.target.checked){unlock();setTimeout(()=>{const a=actxGet();if(a&&a.state==='running'){mg.gain.value=P.vol*1.5;pk().n(784,a.currentTime+.01,.12,V*.6)}},60)}};
 $('p-anim').onchange=e=>setPref('anim',e.target.checked);
+$('p-aprev').onclick=previewAnim;
 $('p-isnd').onchange=e=>{const v=e.target.value;P.sndIntro=v!=='none';if(P.sndIntro)P.sndIntroType=v;savePrefs();syncPrefUI();if(P.sndIntro)sfx('intro',true)};
 $('p-sndu').onchange=e=>{setPref('sndUi',e.target.checked);if(e.target.checked)sfx('ok')};
 $('p-name').oninput=e=>{P.name=e.target.value.slice(0,20);savePrefs();applyName()};
 $('p-prev').onclick=()=>{$('pd').close();setTimeout(()=>playIntro(openPrefs),240)};
 let ARP=[];
+let ASORT='ip',ADIR=1;try{const s=JSON.parse(localStorage.getItem('gax.arps')||'null');if(s&&['ip','mac','cli','if','st'].indexOf(s.k)>=0){ASORT=s.k;ADIR=s.d===-1?-1:1}}catch(e){}
+const ipN=s=>{const m=/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(String(s||''));return m?((+m[1]*256+ +m[2])*256+ +m[3])*256+ +m[4]:Infinity};
+const stR=s=>s==='reachable'||s==='permanent'?0:(s==='stale'||s==='delay'||s==='probe'?1:2);
+const sCmp=(a,b)=>String(a||'').localeCompare(String(b||''),'es',{sensitivity:'base',numeric:true});
+function arpCmp(by){return(a,b)=>{let x=0;
+if(ASORT==='ip')x=ipN(a.address)-ipN(b.address);
+else if(ASORT==='mac')x=sCmp(a.mac,b.mac);
+else if(ASORT==='if')x=sCmp(a.interface,b.interface);
+else if(ASORT==='st')x=stR(a.status)-stR(b.status);
+else if(ASORT==='cli'){const p=by[a.address]||'',q=by[b.address]||'';if(!p!==!q)return p?-1:1;x=sCmp(p,q)}
+return (x*ADIR)||(ipN(a.address)-ipN(b.address))||0}}
+function arpSort(k){if(ASORT===k)ADIR=-ADIR;else{ASORT=k;ADIR=1}try{localStorage.setItem('gax.arps',JSON.stringify({k:ASORT,d:ADIR}))}catch(e){}paintArp()}
 const escA=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 function openArp(){$('arpd').showModal();loadArp()}
-function paintArp(){const q=$('arq').value.trim().toLowerCase(),by={};clients.forEach(c=>{if(c.ip)by[c.ip]=c.name});
-const rows=ARP.filter(r=>!q||(r.address+' '+r.mac+' '+r.interface+' '+(by[r.address]||'')).toLowerCase().indexOf(q)>=0);
+function paintArp(){[].forEach.call(document.querySelectorAll('#arso .pill'),b=>{const on=b.dataset.k===ASORT;b.classList.toggle('on',on);let i=b.querySelector('i');if(!i){i=document.createElement('i');b.appendChild(i)}i.textContent=on?(ADIR>0?'▲':'▼'):''});
+const q=$('arq').value.trim().toLowerCase(),by={};clients.forEach(c=>{if(c.ip)by[c.ip]=c.name});
+const rows=ARP.filter(r=>!q||(r.address+' '+r.mac+' '+r.interface+' '+(by[r.address]||'')).toLowerCase().indexOf(q)>=0).sort(arpCmp(by));
 $('arl').innerHTML=rows.length?rows.map(r=>'<div class="ar"><b>'+escA(r.address)+'</b><span>'+escA(r.mac||'-')+'</span><i>'+escA(by[r.address]||r.interface)+'</i><em class="'+(r.status==='reachable'||r.status==='permanent'?'on':'')+'"></em></div>').join(''):'<p class="note">Sin resultados</p>'}
 function loadArp(){$('arl').innerHTML='<p class="note">Cargando…</p>';fetch('api/router/arp').then(r=>r.json()).then(d=>{if(d.error){$('arl').innerHTML='<p class="note">'+escA(d.error)+'</p>';return}ARP=d.arp||[];paintArp()}).catch(()=>{$('arl').innerHTML='<p class="note">No disponible. Si estás en Windows, actualiza el programa.</p>'})}
 $('arq').addEventListener('input',paintArp);
@@ -978,18 +1013,16 @@ const introHTML=$('intro').outerHTML;
 let introActive=document.documentElement.classList.contains('intro'),introQ=[];
 function afterIntro(f){if(introActive)introQ.push(f);else f()}
 function runIntro(done,boot){const h=document.documentElement,el=$('intro');let over=false,played=false,kd,tm,wt;
-const MIN=1500,WAIT=2200;
+const MIN=1500;
 const a=P.sndIntro?actxGet():null;buildName();
 /* el sonido solo arranca junto con la animacion; si el audio estaba bloqueado nunca suena tarde */
 const play=()=>{if(played||over||!P.sndIntro)return;played=true;sfx('intro')};
 if(a){const pl=()=>{if(a.state==='running')play()};a.resume().then(pl).catch(()=>{});pl()}
-const end=()=>{if(over)return;over=true;clearTimeout(tm);clearTimeout(wt);document.removeEventListener('keydown',kd);el.classList.remove('wait');el.classList.add('out');
+const end=()=>{if(over)return;over=true;clearTimeout(tm);el.classList.remove('wait');el.classList.add('out');
 if(boot){introActive=false;startEnter();introQ.splice(0).forEach(f=>f())}
 setTimeout(()=>{el.remove();h.classList.remove('intro');if(done)done()},560)};
-const go=()=>{play();end()};
-/* la entrada dura 1,5 s para que se vea y se oiga completa; si el celular aun bloquea el audio, espera un toque unos segundos */
-tm=setTimeout(()=>{if(a&&!played&&P.sndIntro){el.classList.add('wait');wt=setTimeout(end,WAIT)}else end()},MIN);
-kd=()=>go();el.addEventListener('pointerup',go);document.addEventListener('keydown',kd)}
+/* la entrada dura 1,5 s y se cierra sola, sin pedir ningun toque */
+tm=setTimeout(end,MIN)}
 function playIntro(done){const h=document.documentElement;if(!$('intro'))document.body.insertAdjacentHTML('afterbegin',introHTML);h.dataset.intro=P.intro;h.classList.add('intro');runIntro(done,false)}
 /* ===== nombre del panel ===== */
 const appName=()=>(P.name||'').trim()||'Gax';
@@ -997,7 +1030,7 @@ function buildName(){const n=appName();$('intro').querySelector('.it').innerHTML
 function applyName(){const n=appName();document.title=n+' · Panel de clientes';$('appname').textContent=n;if($('intro'))buildName()}
 applyName();
 /* ===== saludos y consejos (se muestran en la pantalla de entrada) ===== */
-const TIPS=['Haz clic en el título de una columna para ordenar; otro clic invierte el orden.','El botón de la flecha junto a «Ordenar» invierte la lista, por ejemplo de mayor a menor IP.','Registrar pago suma un mes a la fecha, y si el cliente estaba cortado lo reactiva solo.','Cortar deja al cliente en 1k/1k y Reactivar le devuelve su plan.','Cada cliente necesita una simple queue con el mismo nombre que en el panel.','Copia clientes.db y config.json de vez en cuando como respaldo.','Ajustes guarda la conexión con el MikroTik y la prueba al momento.','«Cortar vencidos» suspende a todos los morosos de una sola vez.','Puedes buscar por nombre, IP, teléfono o queue.','En Personalizar cambias colores, tamaño, sonidos y la animación de entrada.','Ordena por fecha de pago para ver primero a quien vence antes.','«Importar del MikroTik» trae las queues que aún no están en el panel.','Crea un usuario del MikroTik solo para el panel, con permisos api, read y write.','La PC y el celular comparten los clientes por el MikroTik: un pago registrado en uno aparece en el otro en unos segundos.','Registrar pagos y Reactivar a todos son botones separados: tú eliges a quién aplicar cada uno.','Si un pago ya estaba registrado, la app te avisa antes de repetirlo; tú decides si continuar.','Usa Grupos para separar zonas o torres y filtra la lista por grupo.'];
+const TIPS=['Haz clic en el título de una columna para ordenar; otro clic invierte el orden.','El botón de la flecha junto a «Ordenar» invierte la lista, por ejemplo de mayor a menor IP.','Registrar pago suma un mes a la fecha, y si el cliente estaba cortado lo reactiva solo.','Cortar deja al cliente en 1k/1k y Reactivar le devuelve su plan.','Cada cliente necesita una simple queue con el mismo nombre que en el panel.','Copia clientes.db y config.json de vez en cuando como respaldo.','Ajustes guarda la conexión con el MikroTik y la prueba al momento.','«Cortar vencidos» suspende a todos los morosos de una sola vez.','Puedes buscar por nombre, IP, teléfono o queue.','En Personalizar cambias colores, tamaño, sonidos y eliges entre 10 estilos de animación.','Ordena por fecha de pago para ver primero a quien vence antes.','«Importar del MikroTik» trae las queues que aún no están en el panel.','Crea un usuario del MikroTik solo para el panel, con permisos api, read y write.','La PC y el celular comparten los clientes por el MikroTik: un pago registrado en uno aparece en el otro en unos segundos.','Registrar pagos y Reactivar a todos son botones separados: tú eliges a quién aplicar cada uno.','Si un pago ya estaba registrado, la app te avisa antes de repetirlo; tú decides si continuar.','Usa Grupos para separar zonas o torres y filtra la lista por grupo.'];
 function greet(){const h=new Date().getHours();return h<6?'🌙 ¡Buenas noches!':h<12?'☀️ ¡Buenos días!':h<19?'🌤️ ¡Buenas tardes!':'🌙 ¡Buenas noches!'}
 /* ===== sonido al pasar el mouse ===== */
 const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5],HOVSEL='button:not(:disabled),.row,.pill,select,.logo,.sw,.hb,.tg,.bi,.seg button',CAN_HOVER=matchMedia('(hover:hover)').matches;

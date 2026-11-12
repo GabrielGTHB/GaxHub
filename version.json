@@ -1,16 +1,10 @@
 {
- "v": 19,
- "win": "af86d9f01782da37cecfae5ba12091882357178634b2614f6d9691804b027203",
- "apk": "9c4a83ef482ecaaa1701c7ad38e3eb2e69becc4a6cb1c6c7413210631d3a9a6a",
+ "v": 20,
+ "win": "fe5f217492137fc2a2b02fee846df1e0c35ced0e79814511df015b56a2293f8b",
+ "apk": "f0de22fedc56366b4b35f01ac09c3d723d74067952e584af98d860b025f3a2bf",
  "native_min": 1,
  "notes": [
-  "Al abrir Gax, si hay una versi\u00f3n nueva aparece una ventana con las novedades y eliges si instalarla o no.",
-  "La animaci\u00f3n de entrada dura un poco m\u00e1s (1,5 s) para que se vea completa y suene el sonido al mismo tiempo.",
-  "En el celular la pantalla se ajusta a tel\u00e9fonos chicos: ya no se corta por el costado."
- ],
- "native": {
-  "v": 3,
-  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/V19/Gax.exe",
-  "sha256": "faefd5e2c084f24333576163defe3ca1fb19d8291d3ffda5f76c8e065374be0c"
- }
+  "Nuevo: 10 estilos de animaci\u00f3n para la interfaz (Cl\u00e1sico, Suave, Deslizar, Zoom, Rebote, Cascada, Giro 3D, Desenfoque, El\u00e1stico y Ne\u00f3n). Se eligen en Personalizar > Animaciones, con bot\u00f3n \u00abVer\u00bb para probarlos.",
+  "El estilo Cl\u00e1sico es el de siempre, as\u00ed que nada cambia si no eliges otro."
+ ]
 }

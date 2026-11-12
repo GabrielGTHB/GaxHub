@@ -1,4 +1,3 @@
 # Una linea por novedad. Es el texto que ve la persona en la ventana "Hay una versión nueva".
-Al abrir Gax, si hay una versión nueva aparece una ventana con las novedades y eliges si instalarla o no.
-La animación de entrada dura un poco más (1,5 s) para que se vea completa y suene el sonido al mismo tiempo.
-En el celular la pantalla se ajusta a teléfonos chicos: ya no se corta por el costado.
+Nuevo: 10 estilos de animación para la interfaz (Clásico, Suave, Deslizar, Zoom, Rebote, Cascada, Giro 3D, Desenfoque, Elástico y Neón). Se eligen en Personalizar > Animaciones, con botón «Ver» para probarlos.
+El estilo Clásico es el de siempre, así que nada cambia si no eliges otro.

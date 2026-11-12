@@ -6,6 +6,7 @@ import time
 import base64
 import hashlib
 import subprocess
+import shutil
 import urllib.request
 import sqlite3
 import threading
@@ -391,7 +392,7 @@ MAX_UPD = 3 * 1024 * 1024
 MAX_EXE = 300 * 1024 * 1024
 # Version del programa (la parte de Python/.exe). Subela cada vez que publiques un Gax.exe nuevo.
 # Es distinta de GAX_V (version de la pantalla/HTML).
-NATIVE_V = 3
+NATIVE_V = 4
 RUN_V = [0]  # version de la pantalla que se esta mostrando
 
 
@@ -546,6 +547,74 @@ def _clear_exe():
             pass
 
 
+def ensure_home():
+    """Si Gax.exe esta suelto (no dentro de una carpeta llamada Gax), crea la carpeta Gax a su lado,
+    copia ahi el programa y sus datos, crea un acceso directo en el Escritorio y se reabre desde la carpeta.
+    Lo de antes se borra solo despues de cerrar. Devuelve True si hay que cerrar este proceso."""
+    if not FROZEN:
+        return False
+    home = ""
+    made = []
+    try:
+        exe = os.path.abspath(sys.executable)
+        here = os.path.dirname(exe)
+        if os.path.basename(here).lower() == "gax":
+            return False
+        home = os.path.join(here, "Gax")
+        os.makedirs(home, exist_ok=True)
+        target = os.path.join(home, os.path.basename(exe))
+        shutil.copy2(exe, target)
+        if os.path.getsize(target) != os.path.getsize(exe):
+            raise OSError("copia incompleta")
+        old = []
+        for n in ("clientes.db", "config.json", "datos-ventana"):
+            src, dst = os.path.join(here, n), os.path.join(home, n)
+            if not os.path.exists(src) or os.path.exists(dst):
+                continue
+            if os.path.isdir(src):
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
+            made.append(dst)
+            old.append(src)
+        try:  # acceso directo en el Escritorio (si falla, no pasa nada)
+            q = lambda t: t.replace("'", "''")
+            ps = ("$d=[Environment]::GetFolderPath('Desktop');$s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'Gax.lnk'));"
+                  "$s.TargetPath='%s';$s.WorkingDirectory='%s';$s.IconLocation='%s,0';$s.Save()") % (q(target), q(home), q(target))
+            subprocess.run(["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", ps], creationflags=0x08000000, timeout=25)
+        except Exception:
+            pass
+        bat = os.path.join(home, "limpiar.bat")
+        lines = [
+            "@echo off",
+            "set n=0",
+            ":w",
+            "ping -n 2 127.0.0.1 >nul",
+            'del /f /q "%s" >nul 2>&1' % exe,
+            'if not exist "%s" goto ok' % exe,
+            "set /a n+=1",
+            "if %n% lss 30 goto w",
+            ":ok",
+        ]
+        for s in old:
+            lines.append(('rd /s /q "%s" >nul 2>&1' if os.path.isdir(s) else 'del /f /q "%s" >nul 2>&1') % s)
+        lines.append('rd /s /q "%s" >nul 2>&1' % os.path.join(here, "actualizacion"))
+        lines.append('(goto) 2>nul & del "%~f0"')
+        with open(bat, "w", encoding="mbcs" if os.name == "nt" else "utf-8", newline="\r\n") as f:
+            f.write("\n".join(lines) + "\n")
+        flags = 0x00000008 | 0x00000200 | 0x08000000  # DETACHED_PROCESS | NEW_PROCESS_GROUP | NO_WINDOW
+        subprocess.Popen([target], cwd=home, creationflags=flags, close_fds=True)
+        subprocess.Popen(["cmd", "/c", bat], cwd=home, creationflags=flags, close_fds=True)
+        return True
+    except Exception:
+        for m in made:  # si algo fallo, no se toca lo de antes: sigue funcionando donde estaba
+            try:
+                shutil.rmtree(m) if os.path.isdir(m) else os.remove(m)
+            except Exception:
+                pass
+        return False
+
+
 def apply_pending_exe():
     """Al abrir: si hay un Gax.exe nuevo descargado y verificado, lo pone en lugar del actual y lo reabre.
     Devuelve True si hay que cerrar este proceso (lo reemplaza el script aplicar.bat)."""
@@ -568,10 +637,10 @@ def apply_pending_exe():
             "ping -n 2 127.0.0.1 >nul",
             'copy /y "%s" "%s.bak" >nul 2>&1' % (exe, exe),
             'move /y "%s" "%s" >nul 2>&1' % (newp, exe),
-            "if errorlevel 1 (",
-            "  set /a n+=1",
-            "  if %n% lss 30 goto w",
-            ")",
+            "if not errorlevel 1 goto ok",
+            "set /a n+=1",
+            "if %n% lss 30 goto w",
+            ":ok",
             'del "%s" >nul 2>&1' % _upd("exe.json"),
             'del "%s" >nul 2>&1' % newp,
             'start "" "%s"' % exe,
@@ -1005,6 +1074,8 @@ def main():
     index = os.path.join(RES, "static", "index.html")
     if not os.path.exists(index):
         index = os.path.join(RES, "index.html")
+    if ensure_home():
+        return
     if apply_pending_exe():
         return
     index, RUN_V[0] = pick_index(index)
