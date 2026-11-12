@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Etiqueta de la release (ej. v2)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compilar Gax.exe
+        shell: pwsh
+        run: |
+          Copy-Item win.html windows/static/index.html -Force
+          python -m pip install -q -r windows/requirements.txt pyinstaller
+          Push-Location windows
+          python -m PyInstaller --onefile --noconsole --name Gax --icon icon.ico --add-data "static;static" app.py
+          Pop-Location
+          Copy-Item windows/dist/Gax.exe Gax.exe
+      - name: Publicar release (Gax.exe y APK de la carpeta apk/)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: |
+            Gax.exe
+            apk/*.apk
+      - name: Actualizar version.json
+        shell: pwsh
+        run: |
+          $tag = "${{ github.event.inputs.tag || github.ref_name }}"
+          python tools/make_version.py --exe Gax.exe --repo "${{ github.repository }}" --tag $tag
+          git config user.name "gax-release"
+          git config user.email "gax-release@users.noreply.github.com"
+          git add version.json
+          git diff --cached --quiet; if ($LASTEXITCODE -ne 0) { git commit -m "version.json para $tag"; git push origin HEAD:main }
