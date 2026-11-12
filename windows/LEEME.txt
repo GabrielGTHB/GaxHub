@@ -1,0 +1,100 @@
+GAX - PANEL DE CLIENTES PARA MIKROTIK (app de Windows)
+
+Es una ventana propia de Windows. No abre el navegador ni usa ningun servidor local.
+
+PARA USARLA
+Opcion A, la mas rapida: doble clic en iniciar.bat (necesita Python instalado, marcando Add to PATH).
+Opcion B, programa .exe: doble clic en crear-exe.bat una sola vez. Se crea dist\Gax.exe.
+Copia Gax.exe donde quieras y desde ahi solo haz doble clic. No necesita Python.
+
+Si ya tenias el panel anterior, copia tus archivos clientes.db y config.json
+junto a app.py (o junto a Gax.exe) y tus clientes aparecen igual.
+
+La primera vez se abren los Ajustes: IP del MikroTik, puerto API, usuario y clave
+(se recomienda un usuario solo para el panel, con permisos api, read y write).
+
+REQUISITOS
+- Windows 10 u 11 con Microsoft Edge WebView2 (ya viene instalado en casi todos los equipos).
+  Si la ventana sale en blanco, instala WebView2 Runtime desde microsoft.com.
+- Si pip falla instalando pywebview, usa Python 3.12.
+
+NOTAS
+- Cada cliente debe tener una simple queue con el mismo nombre que en el panel.
+- Cortar pone max-limit en 1k/1k. Reactivar lo devuelve al plan.
+- Los datos quedan en clientes.db y config.json junto al programa: copiarlos de vez en cuando.
+- Las preferencias de Personalizar se guardan en la carpeta datos-ventana.
+
+SINCRONIZACION CON EL CELULAR (nuevo)
+- La PC y la app del celular comparten los mismos clientes, pagos y cortes. Se guardan en el propio
+  MikroTik (scripts cuyo nombre empieza con gax-) y cada app los lee y los actualiza sola cada pocos segundos.
+- Arriba, junto al titulo, se ve el estado: "Sincronizado" o "Sin sincronizar" (pasa el mouse para ver el motivo).
+- En Ajustes hay un interruptor para apagarla. El usuario del MikroTik necesita permiso write
+  (y si da error de permisos, tambien policy).
+- Si los dos cambian el mismo cliente a la vez, gana el cambio mas reciente. Cambios en clientes distintos se conservan todos.
+- La primera vez, los clientes que ya tengan la PC y el celular se unen; si coinciden por nombre de queue no se duplican.
+- clientes.db sigue siendo tu respaldo local. Despues de actualizar, vuelve a correr crear-exe.bat para generar el nuevo Gax.exe.
+
+NOVEDADES v10
+- Botones separados: Registrar pagos, Reactivar a todos y Cortar vencidos. Cada uno abre una lista donde marcas a quien aplicarlo.
+- Aviso de pago duplicado (en un cliente o en lote): puedes continuar si lo eliges.
+- Grupos de clientes: se asignan en Editar cliente, se filtran arriba de la lista y se administran en Mas > Grupos de clientes.
+- Personalizar: 16 temas ordenados en una lista, color libre para los botones de Pagos, Reactivar y Cortar, y 3 estilos de sonido suaves.
+- Correcciones: sumar un mes a una fecha del 29, 30 o 31 ya no se pasa al mes siguiente; si el MikroTik rechaza un corte o reactivacion, el panel ya no queda marcado como si se hubiera aplicado.
+- Si dos clientes llevan la misma queue, se pide confirmacion antes de guardar.
+
+NOVEDADES v11
+- Diseno minimalista: lista mas angosta y limpia, un solo renglon de resumen arriba, acciones en lote como botones chicos y Editar/Borrar con iconos (aparecen al pasar el mouse).
+- Sonidos nuevos: 5 estilos (Cristal, Sutil, Retro, Gota, Teclas) y 6 sonidos de entrada (Campanas, Ascenso, Pulso, Arcade, Brisa, Latido). Todo en Personalizar.
+- Al pasar el mouse ahora suena en botones, filas, filtros y menus, y cada fila toca una nota distinta al recorrerlas. Ya se escucha desde que abres la app.
+- 4 efectos de entrada nuevos: Persianas, Desenfoque, Giro y Latido (ademas de Ondas, Zoom y Cortina).
+- Flechas a un costado para ir arriba de todo y abajo de todo.
+- Mas animaciones: efecto al pulsar botones, filas que aparecen al bajar, menus y ventanas con entrada escalonada.
+- El selector de color ya no se traba: la vista previa es en vivo y se guarda al soltar (mas de 6 veces mas fluido con 176 clientes).
+- Correcciones: buscar ya no anima decenas de filas por cada letra; el consumo no se redibuja si no cambio; ya no suena "ok" si cancelas al guardar un cliente; la fuente de internet ya no bloquea el arranque sin conexion.
+- La app del celular tambien se actualizo: Gax-v11.apk.
+
+
+NOVEDADES v12 (clientes tambien en Winbox)
+- Al guardar un cliente nuevo, GAX crea su simple queue en el MikroTik (nombre = queue, target = IP, max-limit = plan).
+  Si el cliente no tiene IP o plan, NO se crea la queue (para no crear una queue sin target que limite a todos) y se avisa.
+- En cada queue se escribe un comentario que empieza con [GAX]: nombre, telefono, plan, precio, "Vence dd/mm/aaaa",
+  "Ultimo pago" y CORTADO si esta cortado. Se actualiza solo cuando registras un pago, cortas, reactivas o editas.
+- Si la queue ya tenia un comentario tuyo, se conserva despues de " || ".
+- Si cambias el nombre de la queue al editar un cliente, se renombra la queue existente en vez de crear otra.
+- Si cambias la IP o la velocidad del cliente, tambien se actualizan en la queue. En queues que ya existian NO se toca la
+  IP ni la velocidad por tu simple edicion de otros datos.
+- Los pagos se siguen registrando solo en GAX; Winbox solo muestra la fecha en el comentario.
+- Borrar un cliente en GAX NO borra su queue en el MikroTik.
+- Menu Mas > "Enviar clientes al MikroTik": crea las queues que falten y escribe el comentario de todos (hacerlo una vez
+  para rellenar los clientes que ya tenias). Los cambios nuevos se envian solos.
+- La app del celular (Gax-v12.apk) hace lo mismo por REST. El usuario del MikroTik necesita permiso write.
+
+NOVEDADES v12.1
+- Cliente nuevo: la fecha de pago sale sola un mes despues de hoy (hoy 10/11 -> 10/12). Se puede cambiar antes de guardar.
+  Si hoy es 31, cae en el ultimo dia del mes siguiente (31/10 -> 30/11).
+
+ACTUALIZACIONES AUTOMATICAS (v13)
+- La app revisa sola, desde GitHub (repositorio GabrielGTHB/GaxHub), si hay una version nueva de la pantalla.
+- Si la hay, la descarga, comprueba que no este alterada y la aplica la proxima vez que abras Gax.
+- Si una actualizacion falla al abrir, la app la descarta y vuelve sola a la anterior.
+- Ajustes > Actualizaciones automaticas: ahi ves la version y el boton "Buscar ahora".
+- Solo cambian la pantalla. Si algun dia cambia el programa en si, te avisare para reinstalar.
+
+
+
+NOVEDADES v14
+- Al borrar un cliente en GAX tambien se borra su simple queue en el MikroTik (Winbox). Se avisa antes en la confirmacion.
+  Si otro cliente usa la misma queue, NO se borra. Si hay 2 queues con el mismo nombre en Winbox, no se borra ninguna (borrala a mano).
+  Si en ese momento no hay conexion, queda pendiente y se reintenta sola cada minuto.
+- Al final de la lista aparece el pago total (suma del precio de los clientes mostrados; si hay filtro o busqueda lo indica).
+- IMPORTANTE: esta version cambia app.py. Despues de reemplazar los archivos, vuelve a correr crear-exe.bat para generar el nuevo Gax.exe.
+  Con el Gax.exe viejo, el total aparece (se actualiza solo desde GitHub) pero el borrado en Winbox queda pendiente hasta que uses el nuevo.
+- La app del celular (apk.html v14) hace lo mismo por REST; se actualiza sola desde GitHub, no hace falta un APK nuevo.
+
+
+NOVEDADES v15 (el programa se actualiza solo)
+- Gax.exe ahora busca en GitHub Releases un Gax.exe nuevo, lo descarga, verifica su SHA-256 contra version.json y lo
+  instala al reabrir la app (guarda una copia de la version anterior como Gax.exe.bak por si hay que volver atras).
+- Si una pantalla nueva necesita un programa mas nuevo (native_min en version.json), no se aplica hasta que el .exe se actualice.
+- Solo funciona con Gax.exe (no con iniciar.bat). Esta es la ultima vez que debes crear el .exe a mano con crear-exe.bat.
+- Cada vez que publiques un .exe nuevo, sube NATIVE_V en app.py (ver COMO-PUBLICAR.md en el repositorio).
