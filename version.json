@@ -1,11 +1,16 @@
 {
  "v": 19,
- "win": "afa90c900e2fc65d22c8bf160da6bbf076e1daf2b88a6bf9f663b8e4741e837a",
- "apk": "c0c918ea9ccca61b5ae87b57985b15be7e061a0d86556dbdc0acaf1dec1ea904",
+ "win": "af86d9f01782da37cecfae5ba12091882357178634b2614f6d9691804b027203",
+ "apk": "9c4a83ef482ecaaa1701c7ad38e3eb2e69becc4a6cb1c6c7413210631d3a9a6a",
  "native_min": 1,
  "notes": [
-  "El bot\u00f3n ARP ahora est\u00e1 al lado de \u00abNuevo cliente\u00bb, y dentro del ARP puedes ordenar por IP, MAC, Cliente, Interfaz o Estado.",
-  "Ya no pide \u00abToca para entrar\u00bb: la animaci\u00f3n de inicio entra sola.",
-  "En Windows, Gax crea su propia carpeta \u00abGax\u00bb la primera vez que se abre (con acceso directo en el Escritorio)."
- ]
+  "Al abrir Gax, si hay una versi\u00f3n nueva aparece una ventana con las novedades y eliges si instalarla o no.",
+  "La animaci\u00f3n de entrada dura un poco m\u00e1s (1,5 s) para que se vea completa y suene el sonido al mismo tiempo.",
+  "En el celular la pantalla se ajusta a tel\u00e9fonos chicos: ya no se corta por el costado."
+ ],
+ "native": {
+  "v": 3,
+  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/V19/Gax.exe",
+  "sha256": "faefd5e2c084f24333576163defe3ca1fb19d8291d3ffda5f76c8e065374be0c"
+ }
 }
