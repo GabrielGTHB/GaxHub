@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=14;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=15;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -1018,7 +1018,7 @@ const UPDI={last:0};
 function toast(msg,ms){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),ms||5000)}
 function updCheck(manual){UPDI.last=Date.now();const u=$('c-umsg');if(manual&&u)u.textContent='Buscando...';
 const req=manual?fetch('api/update',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({repo:($('c-repo').value||'').trim()})}):fetch('api/update');
-return req.then(r=>r.json()).then(d=>{if(!d)return;const m=d.state==='ready'?'Versión '+d.v+' lista. Se aplica al reabrir la app.':(d.msg||'');
+return req.then(r=>r.json()).then(d=>{if(!d)return;const m=d.state==='ready'?(d.msg||('Versión '+d.v+' lista. Se aplica al reabrir la app.')):(d.msg||'');
 if(u)u.textContent=m;if(d.state==='ready')toast(m,9000);else if(manual)toast(m,6000);return d}).catch(()=>{if(u)u.textContent='';if(manual)toast('No se pudo buscar actualizaciones')})}
 setTimeout(()=>updCheck(false),7000);setInterval(()=>{if(!document.hidden)updCheck(false)},4*3600*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-UPDI.last>3600*1000)updCheck(false)});
