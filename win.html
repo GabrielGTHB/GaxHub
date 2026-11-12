@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=16;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=17;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -406,6 +406,22 @@ button.pri:active{transform:scale(.97)}
 .ar i{font-style:normal;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ar em{width:9px;height:9px;border-radius:50%;background:var(--b)}
 .ar em.on{background:var(--ok)}
+
+.hello,.is,.itip,.ibar,.ring.r2{display:none!important}
+#intro{contain:layout paint}
+.ilogo{animation:tileIn .4s cubic-bezier(.2,.9,.3,1) both;margin-bottom:34px}
+.ilogo path,.ilogo circle{stroke-dasharray:none;stroke-dashoffset:0;transform-box:fill-box;transform-origin:center;transform:none;will-change:transform,opacity;animation:asm .5s cubic-bezier(.2,1.25,.35,1) both}
+.ilogo .a1{--x:0px;--y:-190px;--r:-18deg;animation-delay:.34s}
+.ilogo .a2{--x:-170px;--y:70px;--r:24deg;animation-delay:.22s}
+.ilogo circle{--x:0px;--y:210px;--r:0deg;animation-delay:.1s}
+.ilogo::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.5) 50%,transparent 62%) 150% 0/250% 100% no-repeat;animation:shine .5s ease .78s both}
+.ring{animation:ring .9s ease-out .85s 1 both}
+.it span{animation:letter .45s cubic-bezier(.2,.9,.3,1.1) calc(.6s + var(--i)*.04s) both}
+@keyframes tileIn{from{opacity:0;transform:scale(.6)}}
+@keyframes asm{0%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(.5)}60%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
+@keyframes iOut{to{opacity:0}}
+#intro.out{animation:iOut .35s ease forwards}
 </style>
 <script>
 (function(){
@@ -928,13 +944,12 @@ const introHTML=$('intro').outerHTML;
 let introActive=document.documentElement.classList.contains('intro'),introQ=[];
 function afterIntro(f){if(introActive)introQ.push(f);else f()}
 function runIntro(done,boot){const h=document.documentElement,el=$('intro');let over=false,played=false,kd,tm;
-$('igreet').textContent=greet();$('itip').textContent='💡 '+TIPS[Math.floor(Math.random()*TIPS.length)];
 const a=P.sndIntro?actxGet():null;buildName();if(a){const pl=()=>{if(!played&&a.state==='running'){played=true;sfx('intro')}};a.resume().then(pl).catch(()=>{});pl()}
 const end=()=>{if(over)return;over=true;clearTimeout(tm);document.removeEventListener('keydown',kd);el.classList.add('out');
 if(boot){introActive=false;startEnter();introQ.splice(0).forEach(f=>f())}
 setTimeout(()=>{el.remove();h.classList.remove('intro');if(done)done()},560)};
 const go=()=>{if(!played&&P.sndIntro){played=true;sfx('intro')}end()};
-tm=setTimeout(end,1500);
+tm=setTimeout(end,1250);
 kd=()=>go();el.addEventListener('pointerdown',go);document.addEventListener('keydown',kd)}
 function playIntro(done){const h=document.documentElement;if(!$('intro'))document.body.insertAdjacentHTML('afterbegin',introHTML);h.dataset.intro=P.intro;h.classList.add('intro');runIntro(done,false)}
 /* ===== nombre del panel ===== */
