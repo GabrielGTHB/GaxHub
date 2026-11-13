@@ -105,3 +105,10 @@ NOVEDADES v19
   datos (clientes.db, config.json, datos-ventana), crea un acceso directo "Gax" en el Escritorio y se reabre desde la carpeta.
   El Gax.exe y los datos de antes se borran solos despues de cerrar. Si algo falla al copiar, no toca nada y sigue donde estaba.
 - Si Gax.exe ya esta dentro de una carpeta llamada "Gax", no hace nada.
+
+
+NOVEDADES v21
+- Al actualizar ya no se crea la carpeta «actualizacion» ni se deja Gax.exe.bak: se muestra una barra de descarga, el programa nuevo
+  se prueba, reemplaza al viejo y se reabre solo. Las actualizaciones de pantalla se guardan en una carpeta oculta de Windows (AppData\Local\Gax).
+- Al abrir, borra solo la carpeta «actualizacion» y los .bak que dejaron versiones anteriores.
+- Corregido el error «la descarga no coincide con version.json» (saltos de linea distintos o GitHub todavia publicando).

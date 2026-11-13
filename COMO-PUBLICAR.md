@@ -23,3 +23,12 @@
   la etiqueta y se adjunta a la release. Para instalarlo/actualizarlo en el celular sin hacerlo a mano usa la app Obtainium
   apuntando a `https://github.com/TU_USUARIO/TU_REPO` (avisa de cada release y la instala con un toque).
   El APK debe ir firmado con la MISMA llave que el instalado, si no Android lo rechaza.
+
+## Archivos ocultos (los que empiezan con punto)
+`.github`, `.gitattributes` y `.gitignore` son carpetas/archivos ocultos. Al subir a GitHub desde la web, actívalos en tu explorador
+(Windows: pestaña Ver > Elementos ocultos; Mac: Cmd+Shift+punto) para que se suban también.
+`.gitattributes` evita que Git cambie los saltos de línea; así el SHA-256 de `version.json` siempre coincide con los archivos.
+
+## Cómo se actualiza Gax.exe (sin carpetas extra)
+Al tocar «Instalar ahora» sale una barra de descarga; el programa nuevo se baja, se prueba (--selftest), reemplaza al viejo y se
+reabre solo. No queda carpeta «actualizacion» ni Gax.exe.bak. Si cambias app.py, sube `NATIVE_V` y crea la etiqueta (git tag vN).

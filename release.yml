@@ -17,6 +17,8 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+      - name: Sin conversion de saltos de linea (los hashes deben coincidir)
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
         with:
           ref: main

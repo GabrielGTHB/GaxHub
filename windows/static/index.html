@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=20;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=21;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -399,7 +399,8 @@ button.pri:active{transform:scale(.97)}
 #pd .sec{display:none}
 #arpd{width:min(560px,94vw)}
 .arq{width:100%;box-sizing:border-box;margin:0 0 10px;padding:11px 14px;border-radius:999px;border:1px solid var(--b);background:var(--s2);color:var(--t);font:inherit}
-.arl{max-height:55vh;overflow:auto}.arso{margin:0 0 10px}.arso .pill i:empty{display:none}
+.arl{max-height:55vh;overflow:auto}.pbar{height:8px;border-radius:99px;background:var(--s2);overflow:hidden;margin:8px 0}.pbar i{display:block;height:100%;width:0;border-radius:99px;background:var(--a);transition:width .25s}.pbar.ind i{width:38%;animation:pind 1.1s ease-in-out infinite}@keyframes pind{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+.arso{margin:0 0 10px}.arso .pill i:empty{display:none}
 .ar{display:grid;grid-template-columns:1.1fr 1.3fr 1fr 12px;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--b);font-size:.9em}
 .ar span{color:var(--m);font-family:ui-monospace,monospace;font-size:.85em}
 .ar i{font-style:normal;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -469,6 +470,8 @@ if(u==='api/router/push')return a.router_push(body);
 if(u==='api/router/delete'){if(!a.router_delete)throw new Error('actualiza el programa de Windows (Gax.exe v14)');return a.router_delete(body)}
 if(u==='api/router/usage')return a.router_usage();
 if(u==='api/sync')return a.sync_clients();
+if(u==='api/update/start')return typeof a.update_start==='function'?a.update_start():{ok:false};
+if(u==='api/update/status')return typeof a.update_status==='function'?a.update_status():{ok:false};
 if(u==='api/update/apply')return typeof a.apply_update==='function'?a.apply_update():{ok:false};
 if(u==='api/update'){const rp=body&&typeof body.repo==='string'?body.repo:null,md=body&&body.mode||null;return a.check_update(rp,md).catch(()=>a.check_update(rp))}
 if(u==='api/ready')return a.ui_ready();
@@ -651,6 +654,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <p class="ver"><b id="ud-v"></b><span id="ud-c"></span></p>
 <ul class="nw" id="ud-n"></ul>
 <p class="note" id="ud-s" aria-live="polite"></p>
+<div class="pbar" id="ud-bar" hidden><i></i></div>
 <div class="foot"><button id="ud-no" type="button" onclick="updLater()">Ahora no</button><button id="ud-go" class="pri" type="button" onclick="updInstall()">Instalar ahora</button></div>
 </dialog>
 <dialog id="arpd"><h2>ARP del MikroTik</h2><input id="arq" class="arq" placeholder="Buscar IP, MAC o cliente" autocomplete="off"><div id="arso" class="pills arso" aria-label="Ordenar"><button class="pill" data-k="ip" onclick="arpSort('ip')">IP</button><button class="pill" data-k="mac" onclick="arpSort('mac')">MAC</button><button class="pill" data-k="cli" onclick="arpSort('cli')">Cliente</button><button class="pill" data-k="if" onclick="arpSort('if')">Interfaz</button><button class="pill" data-k="st" onclick="arpSort('st')">Estado</button></div><div id="arl" class="arl"></div><div class="foot"><button onclick="loadArp()">Actualizar</button><button class="pri" onclick="$('arpd').close()">Cerrar</button></div></dialog>
@@ -1140,7 +1144,7 @@ showCmd('Enviar clientes al MikroTik','Queues creadas: '+cr+'\nComentarios actua
 const UPDI={last:0,skip:0,open:false,busy:false,done:false,d:null};
 function toast(msg,ms){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),ms||5000)}
 const updReq=(mode,repo)=>{const b={mode:mode};if(repo!=null)b.repo=repo;return fetch('api/update',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json())};
-function updShow(d){UPDI.d=d;UPDI.open=true;UPDI.done=false;
+function updShow(d){UPDI.d=d;UPDI.open=true;UPDI.done=false;updBar(false);
 $('ud-v').textContent='Versión '+d.v;$('ud-c').textContent=d.cur&&d.cur!==d.v?'Tienes la '+d.cur:'';
 const ul=$('ud-n');ul.innerHTML='';(d.notes&&d.notes.length?d.notes:['Mejoras y correcciones.']).forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li)});
 $('ud-s').textContent=d.restart?'Gax se cierra y se vuelve a abrir solo al terminar.':'';
@@ -1151,15 +1155,23 @@ const dl=$('ud');if(!dl.open)dl.showModal()}
 function updLater(){if(UPDI.busy)return;$('ud').close()}
 $('ud').addEventListener('cancel',e=>{if(UPDI.busy)e.preventDefault()});
 $('ud').addEventListener('close',()=>{UPDI.open=false;if(UPDI.d&&!UPDI.done)UPDI.skip=UPDI.d.v});
+const updBar=p=>{const b=$('ud-bar');b.hidden=p===false;if(p===false)return;b.classList.toggle('ind',p==null);b.firstChild.style.width=p==null?'':Math.round(Math.max(0,Math.min(1,p))*100)+'%'};
+function updRun(){return fetch('api/update/start',{method:'POST'}).then(r=>r.json()).catch(()=>null).then(s=>{
+if(!s||!s.ok)return updReq('install');
+return new Promise(res=>{const tick=async()=>{const st=await fetch('api/update/status').then(r=>r.json()).catch(()=>null);
+if(st&&st.ok){if(st.phase==='done')return res(st.result);
+const pc=st.total>0?st.done/st.total:null;updBar(pc);
+$('ud-s').textContent=st.label==='Verificando'?'Verificando la versión nueva…':'Descargando la versión '+(UPDI.d&&UPDI.d.v||'')+'…'+(pc!=null?' '+Math.round(pc*100)+'%':'')}
+setTimeout(tick,250)};tick()})})}
 async function updInstall(){const d=UPDI.d,go=$('ud-go'),no=$('ud-no'),s=$('ud-s');if(!d||UPDI.busy)return;
 UPDI.busy=true;go.disabled=no.disabled=true;s.textContent=d.staged?'Aplicando…':'Descargando la versión '+d.v+'…';
-try{if(!d.staged){const r=await updReq('install');if(!r||r.state!=='ready')throw new Error((r&&r.msg)||'No se pudo descargar la versión nueva.')}
-UPDI.done=true;s.textContent='Listo. Reiniciando…';
+try{if(!d.staged){updBar(null);const r=await updRun();if(!r||r.state!=='ready')throw new Error((r&&r.msg)||'No se pudo descargar la versión nueva.')}
+UPDI.done=true;updBar(1);s.textContent='Listo. Reiniciando…';
 const a=await fetch('api/update/apply',{method:'POST'}).then(r=>r.json()).catch(()=>null);
 if(a&&a.reload){try{sessionStorage.setItem('gax.upd.try',String(d.v))}catch(e){}setTimeout(()=>location.reload(),600);return}
 if(a&&a.ok)return;
 s.textContent='Instalada. Se usa la próxima vez que abras Gax.';go.hidden=true;no.disabled=false;no.textContent='Cerrar'}
-catch(e){s.textContent=String(e&&e.message||e);go.disabled=false;go.textContent='Reintentar';no.disabled=false}
+catch(e){updBar(false);s.textContent=String(e&&e.message||e);go.disabled=false;go.textContent='Reintentar';no.disabled=false}
 finally{UPDI.busy=false}}
 function updCheck(manual){UPDI.last=Date.now();const u=$('c-umsg');if(manual&&u)u.textContent='Buscando...';
 const req=manual?updReq('check',($('c-repo').value||'').trim()):updReq('check');

@@ -1,15 +1,10 @@
 {
- "v": 20,
- "win": "3e55635a28999448cd76d1e0481608b97b5bc8f3ddec93e1f336582a92e02ac3",
- "apk": "0b3c3e87349f841e5a5519b05f6ba8af9bea11bfdbd2f07103018ef4b7edf237",
+ "v": 21,
+ "win": "df64d97d347012bad14ca91adbff6f6d89dfae741e71d0e6e69e4ed1f9842db0",
+ "apk": "92d71c53c7d866b3fb6eb0165bfb1066c02355830689adde48e570d456da5723",
  "native_min": 1,
  "notes": [
-  "Nuevo: 10 estilos de animaci\u00f3n para la interfaz (Cl\u00e1sico, Suave, Deslizar, Zoom, Rebote, Cascada, Giro 3D, Desenfoque, El\u00e1stico y Ne\u00f3n). Se eligen en Personalizar > Animaciones, con bot\u00f3n \u00abVer\u00bb para probarlos.",
-  "El estilo Cl\u00e1sico es el de siempre, as\u00ed que nada cambia si no eliges otro."
- ],
- "native": {
-  "v": 4,
-  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/V20/Gax.exe",
-  "sha256": "84cad31af9d9b8de50fa97b08b981307d2282405bffcaa23c1f8d9c5683e2a57"
- }
+  "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
+  "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
+ ]
 }

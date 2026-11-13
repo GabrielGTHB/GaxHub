@@ -23,6 +23,9 @@ a = ap.parse_args()
 v = grab("win.html", r"GAX_V\s*=\s*(\d+)")
 if grab("apk.html", r"GAX_V\s*=\s*(\d+)") != v:
     sys.exit("win.html y apk.html deben tener el mismo GAX_V")
+for f in ("win.html", "apk.html"):
+    if b"\r\n" in open(f, "rb").read():
+        print("Aviso: %s tiene saltos de linea de Windows (CRLF). Las apps lo aceptan, pero conviene guardarlo con LF." % f)
 meta = {"v": v, "win": sha("win.html"), "apk": sha("apk.html")}
 nmin = 0
 if os.path.exists("native_min.txt"):

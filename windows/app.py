@@ -7,6 +7,7 @@ import base64
 import hashlib
 import subprocess
 import shutil
+import tempfile
 import urllib.request
 import sqlite3
 import threading
@@ -385,14 +386,20 @@ def _same_limit(a, b):
 
 
 # ===================== ACTUALIZACIONES AUTOMATICAS (GitHub) =====================
-UPD_DIR = os.path.join(DATA, "actualizacion")
+def _upd_base():
+    """Donde se guardan las actualizaciones de la pantalla: carpeta oculta de Windows (AppData), no al lado de Gax."""
+    b = os.environ.get("LOCALAPPDATA")
+    return os.path.join(b, "Gax") if b else os.path.join(tempfile.gettempdir(), "Gax")
+
+
+UPD_DIR = _upd_base()
 REPO_RE = re.compile(r"^[A-Za-z0-9_.-]{1,100}/[A-Za-z0-9_.-]{1,100}$")
 RAW = "https://raw.githubusercontent.com/%s/main/%s"
 MAX_UPD = 3 * 1024 * 1024
 MAX_EXE = 300 * 1024 * 1024
 # Version del programa (la parte de Python/.exe). Subela cada vez que publiques un Gax.exe nuevo.
 # Es distinta de GAX_V (version de la pantalla/HTML).
-NATIVE_V = 4
+NATIVE_V = 5
 RUN_V = [0]  # version de la pantalla que se esta mostrando
 
 
@@ -490,14 +497,36 @@ def _sha_file(path):
     return h.hexdigest()
 
 
+class NotReady(Exception):
+    """La version nueva todavia no esta completa en GitHub (los archivos no coinciden con version.json)."""
+
+
+NOT_READY_MSG = "La versión nueva todavía se está publicando en GitHub. Prueba de nuevo en unos minutos."
+UPD_ST = {"phase": "idle", "label": "", "done": 0, "total": 0, "result": None}  # avance para la barra de descarga
+
+
+def _match_variant(data, sha):
+    """Devuelve los bytes que coinciden con el SHA-256 de version.json (con saltos de linea LF o CRLF), o None."""
+    lf = data.replace(b"\r\n", b"\n")
+    for d in (data, lf, lf.replace(b"\n", b"\r\n")):
+        if hashlib.sha256(d).hexdigest() == sha:
+            return d
+    return None
+
+
 def _download_exe(url, sha, dest):
     part = dest + ".part"
     h, n = hashlib.sha256(), 0
     req = urllib.request.Request(url, headers={"User-Agent": "Gax"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r, open(part, "wb") as f:
+            try:
+                total = int(r.headers.get("Content-Length") or 0)
+            except Exception:
+                total = 0
+            UPD_ST.update(label="Descargando", done=0, total=total)
             while True:
-                b = r.read(1 << 20)
+                b = r.read(256 * 1024)
                 if not b:
                     break
                 n += len(b)
@@ -505,8 +534,9 @@ def _download_exe(url, sha, dest):
                     raise ValueError("archivo demasiado grande")
                 h.update(b)
                 f.write(b)
+                UPD_ST["done"] = n
         if h.hexdigest() != sha:
-            raise ValueError("el programa descargado no coincide con version.json")
+            raise NotReady(NOT_READY_MSG)
         with open(part, "rb") as f:
             if f.read(2) != b"MZ":
                 raise ValueError("el archivo descargado no es un programa de Windows")
@@ -518,8 +548,34 @@ def _download_exe(url, sha, dest):
             pass
 
 
+def _exe_dest():
+    """El .exe nuevo se baja al lado del actual (mismo disco: el cambio es instantaneo y no deja carpetas).
+    Si ahi no se puede escribir, a la carpeta temporal de Windows."""
+    here = os.path.dirname(os.path.abspath(sys.executable))
+    for d in (here, tempfile.gettempdir()):
+        try:
+            probe = os.path.join(d, "Gax.new.exe.part")
+            with open(probe, "wb"):
+                pass
+            os.remove(probe)
+            return os.path.join(d, "Gax.new.exe")
+        except OSError:
+            continue
+    raise OSError("no hay donde guardar la descarga")
+
+
+def _selftest(path):
+    """Prueba que el programa nuevo arranca (con --selftest sale solo) antes de reemplazar al actual."""
+    try:
+        r = subprocess.run([path, "--selftest"], timeout=120, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, creationflags=0x08000000 if os.name == "nt" else 0)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
 def _stage_exe(repo, native):
-    """Descarga el Gax.exe nuevo a la carpeta de actualizacion y verifica su SHA-256. Devuelve True si queda listo."""
+    """Descarga el Gax.exe nuevo, verifica su SHA-256 y comprueba que arranca. Devuelve True si queda listo."""
     v = int(native.get("v") or 0)
     sha = str(native.get("sha256") or "").lower()
     url = str(native.get("exe") or "")
@@ -528,23 +584,34 @@ def _stage_exe(repo, native):
     pre = "https://github.com/%s/releases/download/" % repo
     if not url.startswith(pre) or not re.fullmatch(r"[A-Za-z0-9_.%+-]+(/[A-Za-z0-9_.%+-]+)*", url[len(pre):]):
         raise ValueError("direccion del programa no valida")
-    dest = _upd("Gax.new.exe")
     done = _jload(_upd("exe.json")) or {}
-    if int(done.get("v") or 0) == v and done.get("sha") == sha and os.path.exists(dest):
+    if int(done.get("v") or 0) == v and done.get("sha") == sha and os.path.isfile(str(done.get("path") or "")):
         return True
+    _clear_exe()
+    dest = _exe_dest()
     os.makedirs(UPD_DIR, exist_ok=True)
     _download_exe(url, sha, dest)
+    UPD_ST.update(label="Verificando", done=0, total=0)
+    if not _selftest(dest):
+        try:
+            os.remove(dest)
+        except OSError:
+            pass
+        raise ValueError("el programa nuevo no arrancó en la prueba; se queda la versión actual")
     with open(_upd("exe.json"), "w", encoding="utf-8") as f:
-        json.dump({"v": v, "sha": sha}, f)
+        json.dump({"v": v, "sha": sha, "path": dest}, f)
     return True
 
 
 def _clear_exe():
-    for n in ("Gax.new.exe", "Gax.new.exe.part", "exe.json"):
-        try:
-            os.remove(_upd(n))
-        except OSError:
-            pass
+    meta = _jload(_upd("exe.json")) or {}
+    path = str(meta.get("path") or "")
+    for q in ((path if os.path.basename(path) == "Gax.new.exe" else ""), _upd("exe.json")):
+        if q:
+            try:
+                os.remove(q)
+            except OSError:
+                pass
 
 
 def ensure_home():
@@ -616,53 +683,66 @@ def ensure_home():
 
 
 def apply_pending_exe():
-    """Al abrir: si hay un Gax.exe nuevo descargado y verificado, lo pone en lugar del actual y lo reabre.
-    Devuelve True si hay que cerrar este proceso (lo reemplaza el script aplicar.bat)."""
+    """Si hay un Gax.exe nuevo descargado y verificado, lo pone en lugar del actual y lo reabre.
+    El cambio lo hace un script temporal (deja de existir al terminar): no quedan copias ni carpetas.
+    Devuelve True si hay que cerrar este proceso."""
     if not FROZEN:
         return False
-    newp = _upd("Gax.new.exe")
     meta = _jload(_upd("exe.json"))
-    if not meta or not os.path.exists(newp):
+    if not meta:
         return False
     try:
-        if int(meta.get("v") or 0) <= NATIVE_V or _sha_file(newp) != meta.get("sha"):
+        newp = str(meta.get("path") or "")
+        if int(meta.get("v") or 0) <= NATIVE_V or not os.path.isfile(newp) or os.path.basename(newp) != "Gax.new.exe" \
+                or _sha_file(newp) != meta.get("sha"):
             _clear_exe()
             return False
-        exe = sys.executable
-        bat = _upd("aplicar.bat")
+        exe = os.path.abspath(sys.executable)
+        bat = os.path.join(tempfile.gettempdir(), "Gax-actualizar.bat")
         lines = [
             "@echo off",
             "set n=0",
             ":w",
             "ping -n 2 127.0.0.1 >nul",
-            'copy /y "%s" "%s.bak" >nul 2>&1' % (exe, exe),
             'move /y "%s" "%s" >nul 2>&1' % (newp, exe),
             "if not errorlevel 1 goto ok",
             "set /a n+=1",
             "if %n% lss 30 goto w",
+            'del /f /q "%s" >nul 2>&1' % newp,
             ":ok",
-            'del "%s" >nul 2>&1' % _upd("exe.json"),
-            'del "%s" >nul 2>&1' % newp,
+            'del /f /q "%s" >nul 2>&1' % _upd("exe.json"),
             'start "" "%s"' % exe,
             '(goto) 2>nul & del "%~f0"',
         ]
         with open(bat, "w", encoding="mbcs" if os.name == "nt" else "utf-8", newline="\r\n") as f:
             f.write("\n".join(lines) + "\n")
         flags = 0x00000008 | 0x00000200 | 0x08000000  # DETACHED_PROCESS | NEW_PROCESS_GROUP | NO_WINDOW
-        subprocess.Popen(["cmd", "/c", bat], creationflags=flags, close_fds=True)
+        subprocess.Popen(["cmd", "/c", bat], cwd=tempfile.gettempdir(), creationflags=flags, close_fds=True)
         return True
     except Exception:
         return False
 
 
-def _clean_notes(x):
-    out = []
-    if isinstance(x, list):
-        for t in x[:12]:
-            t = str(t).strip()
-            if t:
-                out.append(t[:240])
-    return out
+def cleanup_old():
+    """Quita lo que dejaban las versiones anteriores al actualizar: la carpeta «actualizacion» y las copias .bak."""
+    try:
+        here = os.path.dirname(os.path.abspath(sys.executable)) if FROZEN else DATA
+        shutil.rmtree(os.path.join(here, "actualizacion"), ignore_errors=True)
+        for n in ("Gax.exe.bak",):
+            try:
+                os.remove(os.path.join(here, n))
+            except OSError:
+                pass
+        stale = os.path.join(here, "Gax.new.exe")
+        meta = _jload(_upd("exe.json")) or {}
+        if os.path.exists(stale) and os.path.abspath(str(meta.get("path") or "")) != os.path.abspath(stale):
+            os.remove(stale)
+        try:
+            os.remove(stale + ".part")
+        except OSError:
+            pass
+    except Exception:
+        pass
 
 
 def do_check_update(repo_in=None, mode=None):
@@ -704,7 +784,7 @@ def do_check_update(repo_in=None, mode=None):
                     return {"ok": True, "state": "none", "v": cur, "msg": "Estás al día (versión %d)." % cur}
                 return {"ok": True, "state": "none", "v": cur, "msg": "La versión %d falló antes. Esperando una más nueva." % v}
             done = _jload(_upd("exe.json")) or {}
-            exe_ok = (not exe_new) or (int(done.get("v") or 0) == exe_v and os.path.exists(_upd("Gax.new.exe")))
+            exe_ok = (not exe_new) or (int(done.get("v") or 0) == exe_v and os.path.isfile(str(done.get("path") or "")))
             html_ok = (not html_new) or staged >= v
             return {"ok": True, "state": "available", "v": max(v, cur), "cur": cur,
                     "notes": _clean_notes(meta.get("notes")), "restart": bool(exe_new), "staged": bool(exe_ok and html_ok)}
@@ -731,9 +811,15 @@ def do_check_update(repo_in=None, mode=None):
             if mode == "install":
                 return fin({"ok": True, "state": "ready", "v": v, "msg": "Versión %d lista. Se aplica al reabrir la app." % v})
             return fin({"ok": True, "state": "none", "v": cur, "msg": "Estás al día (versión %d)." % cur})
-        data = _http_get(RAW % (repo, "win.html"))
-        if hashlib.sha256(data).hexdigest() != sha:
-            raise ValueError("la descarga no coincide con version.json")
+        data = None
+        for i in range(2):  # una segunda vez por si GitHub todavia estaba publicando
+            data = _match_variant(_http_get(RAW % (repo, "win.html")), sha)
+            if data is not None:
+                break
+            if i == 0:
+                time.sleep(1.5)
+        if data is None:
+            raise NotReady(NOT_READY_MSG)
         text = data.decode("utf-8")
         m = re.search(r"GAX_V\s*=\s*(\d+)", text[:6000])
         if not m or int(m.group(1)) != v or "</html>" not in text:
@@ -746,6 +832,8 @@ def do_check_update(repo_in=None, mode=None):
         os.replace(tmp, _upd("app.html"))
         _save_meta({"v": v, "sha": sha})
         return fin({"ok": True, "state": "ready", "v": v, "msg": "Versión %d lista. Se aplica al reabrir la app." % v})
+    except NotReady as e:
+        return {"ok": False, "state": "error", "v": cur, "msg": str(e)}
     except Exception as e:
         return {"ok": False, "state": "error", "v": cur, "msg": "No se pudo actualizar: " + str(e)}
 
@@ -905,6 +993,27 @@ class Api:
 
     def check_update(self, repo=None, mode=None):
         return do_check_update(repo, mode)
+
+    def update_start(self):
+        """Empieza a descargar la version nueva en segundo plano; la pantalla pregunta el avance con update_status."""
+        if UPD_ST["phase"] == "busy":
+            return {"ok": True}
+        UPD_ST.update(phase="busy", label="Buscando", done=0, total=0, result=None)
+
+        def run():
+            try:
+                res = do_check_update(None, "install")
+            except Exception as e:
+                res = {"ok": False, "state": "error", "msg": "No se pudo actualizar: " + str(e)}
+            UPD_ST["result"] = res
+            UPD_ST["phase"] = "done"
+
+        threading.Thread(target=run, daemon=True).start()
+        return {"ok": True}
+
+    def update_status(self):
+        return {"ok": True, "phase": UPD_ST["phase"], "label": UPD_ST["label"], "done": UPD_ST["done"],
+                "total": UPD_ST["total"], "result": UPD_ST["result"] if UPD_ST["phase"] == "done" else None}
 
     def apply_update(self):
         """Aplica ya lo descargado: con Gax.exe nuevo se cierra y se reabre solo; si es solo la pantalla, se recarga."""
@@ -1078,6 +1187,7 @@ def main():
         return
     if apply_pending_exe():
         return
+    cleanup_old()
     index, RUN_V[0] = pick_index(index)
     webview.create_window(
         "Gax · Panel de clientes", index, js_api=Api(),
@@ -1087,4 +1197,6 @@ def main():
 
 
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:  # lo usa la actualizacion para probar que el programa nuevo arranca
+        sys.exit(0)
     main()
