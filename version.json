@@ -1,10 +1,15 @@
 {
  "v": 21,
- "win": "df64d97d347012bad14ca91adbff6f6d89dfae741e71d0e6e69e4ed1f9842db0",
- "apk": "92d71c53c7d866b3fb6eb0165bfb1066c02355830689adde48e570d456da5723",
+ "win": "56b01e01dff74c1b8710c4e01f98815ec1d4c1b87943579dc6c1b85b1e948ea8",
+ "apk": "29cd15baec719d5d81ea1ac1caf7b20a8bb50b275339949bf57375810a74beb3",
  "native_min": 1,
  "notes": [
   "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
   "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
- ]
+ ],
+ "native": {
+  "v": 5,
+  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v21/Gax.exe",
+  "sha256": "00b9fadcf1e13a41ccd6c7d56d4e3cf3b1f70a87647cebd545e979f03f3fbe3f"
+ }
 }
