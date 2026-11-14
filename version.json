@@ -1,7 +1,7 @@
 {
  "v": 23,
- "win": "b18994064807c2b40edbe595c685b4f4b994bba9d546f61c746ad528cc2ad6f0",
- "apk": "c670d94e09104294fae991166aa6817712ddfce5e47d0e5af6c01cb1eafef65d",
+ "win": "ed992591ac8f342b9a83f79dad1cd5dc64a4e70a9b135d9847c044cbebc958e9",
+ "apk": "8ecc0cfa94e9004b7fdf364a3c6184ccb30af2ed56dffe0f9bc142e858f60f9a",
  "native_min": 1,
  "notes": [
   "Exportar a Excel: copia o descarga la lista de clientes (men\u00fa \u22ef > Exportar a Excel). Los pagos se siguen exportando desde el Resumen del mes."
@@ -15,5 +15,10 @@
   "Ya no sale el recuadro azul al tocar o seleccionar botones y opciones.",
   "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
   "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
- ]
+ ],
+ "native": {
+  "v": 6,
+  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v23/Gax.exe",
+  "sha256": "becef8f257651cb39c9c4538f0ed36d12cc81ddf2b40e967d19035d7af0d3316"
+ }
 }
