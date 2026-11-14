@@ -1,7 +1,7 @@
 {
  "v": 22,
- "win": "49d566729b06d0330cf675b7988956a2041b6ecd399bfff6b9d9e5e7357f6e55",
- "apk": "c670d94e09104294fae991166aa6817712ddfce5e47d0e5af6c01cb1eafef65d",
+ "win": "a5705f60b4a2b0bef5d38fe280ca1e70dbea1fd89057b9885bc66598a4166b0b",
+ "apk": "8ecc0cfa94e9004b7fdf364a3c6184ccb30af2ed56dffe0f9bc142e858f60f9a",
  "v_apk": 23,
  "native_min": 1,
  "notes": [
@@ -21,5 +21,10 @@
   "Ya no sale el recuadro azul al tocar o seleccionar botones y opciones.",
   "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
   "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
- ]
+ ],
+ "native": {
+  "v": 6,
+  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v23/Gax.exe",
+  "sha256": "ae571abe56efba1e42a3cda76431676d07648b78957bd8633568961824ab0fe0"
+ }
 }
