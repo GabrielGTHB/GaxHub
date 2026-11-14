@@ -1,7 +1,7 @@
 {
  "v": 22,
- "win": "49d566729b06d0330cf675b7988956a2041b6ecd399bfff6b9d9e5e7357f6e55",
- "apk": "6b594fd3510c1a45531c67d20bb78c19f946159890570923326202a020837f28",
+ "win": "a5705f60b4a2b0bef5d38fe280ca1e70dbea1fd89057b9885bc66598a4166b0b",
+ "apk": "85c5effa910600811ef007b51b4ccb638a610677bb3d3f34b869e934809a2913",
  "native_min": 1,
  "notes": [
   "La lista de clientes carga m\u00e1s r\u00e1pido y se siente m\u00e1s fluida: se pinta por tandas, las b\u00fasquedas esperan un instante mientras escribes y hay menos animaciones pesadas.",
@@ -19,5 +19,10 @@
   "Exportar a Excel: copia o descarga la lista de clientes y los pagos (men\u00fa \u22ef).",
   "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
   "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
- ]
+ ],
+ "native": {
+  "v": 6,
+  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v22.2/Gax.exe",
+  "sha256": "caa1075f6edf356b6deda8f1ab35670901fba0029795e7846b248789471eccf4"
+ }
 }
