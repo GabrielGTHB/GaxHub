@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=22;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=23;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -31,6 +31,10 @@ h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.02em;line-height:1.1
 button{font:inherit;cursor:pointer;border-radius:var(--rb);border:1px solid var(--b);background:var(--s);color:var(--t);padding:9px 15px;font-weight:600;transition:border-color .15s,background .15s,transform .12s}
 button:hover{border-color:var(--m)}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+/* v23: sin recuadro azul al tocar */
+*{-webkit-tap-highlight-color:transparent}
+button,.pill,.menu,.who,.av,.nav,.seg,.chip,.tg,label{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button:focus:not(:focus-visible){outline:none}
 .pri{background:var(--a);color:var(--at);border-color:var(--a)}
 .pri:hover{border-color:var(--a);filter:brightness(1.08)}
 .bad{color:var(--bd)}

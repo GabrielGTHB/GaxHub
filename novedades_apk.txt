@@ -4,5 +4,6 @@ Historial de pagos: toca el nombre de un cliente para ver cuándo y cuánto pag�
 Resumen del mes: cobrado, por cobrar y total esperado, también por grupo (menú ⋯).
 Deshacer: revierte un pago, corte, borrado o edición hecho por error.
 Exportar a Excel: copia o descarga la lista de clientes y los pagos (menú ⋯).
+Ya no sale el recuadro azul al tocar o seleccionar botones y opciones.
 Actualizar ahora es solo una barra de descarga: se cambia por la versión nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.
 Arreglado el aviso «la descarga no coincide con version.json» al actualizar.
