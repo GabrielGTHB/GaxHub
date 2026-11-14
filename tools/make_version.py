@@ -21,12 +21,15 @@ ap.add_argument("--out", default="version.json")
 a = ap.parse_args()
 
 v = grab("win.html", r"GAX_V\s*=\s*(\d+)")
-if grab("apk.html", r"GAX_V\s*=\s*(\d+)") != v:
-    sys.exit("win.html y apk.html deben tener el mismo GAX_V")
+va = grab("apk.html", r"GAX_V\s*=\s*(\d+)")
+if va < v:
+    sys.exit("apk.html no puede tener un GAX_V menor que win.html")
 for f in ("win.html", "apk.html"):
     if b"\r\n" in open(f, "rb").read():
         print("Aviso: %s tiene saltos de linea de Windows (CRLF). Las apps lo aceptan, pero conviene guardarlo con LF." % f)
 meta = {"v": v, "win": sha("win.html"), "apk": sha("apk.html")}
+if va != v:  # el celular va adelantado: la PC sigue leyendo "v" y no ve ninguna actualizacion
+    meta["v_apk"] = va
 nmin = 0
 if os.path.exists("native_min.txt"):
     nmin = int(open("native_min.txt").read().strip() or 0)
@@ -41,6 +44,15 @@ if os.path.exists("novedades.txt"):
             notes.append(ln.lstrip("-*• ").strip()[:240])
     if notes:
         meta["notes"] = notes[:12]
+# novedades_apk.txt (opcional): lo que ve SOLO el celular en la ventana de version nueva (la PC sigue leyendo "notes")
+if os.path.exists("novedades_apk.txt"):
+    na = []
+    for ln in open("novedades_apk.txt", encoding="utf-8"):
+        ln = ln.strip()
+        if ln and not ln.startswith("#"):
+            na.append(ln.lstrip("-*• \t").strip()[:240])
+    if na:
+        meta["notes_apk"] = na[:12]
 if a.exe:
     nv = grab("windows/app.py", r"(?m)^NATIVE_V\s*=\s*(\d+)")
     meta["native"] = {"v": nv, "exe": "https://github.com/%s/releases/download/%s/Gax.exe" % (a.repo, a.tag), "sha256": sha(a.exe)}

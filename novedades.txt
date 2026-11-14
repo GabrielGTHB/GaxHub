@@ -1,3 +1,7 @@
 # Una linea por novedad. Es el texto que ve la persona en la ventana "Hay una versión nueva".
+La lista de clientes carga más rápido y se siente más fluida: se pinta por tandas, las búsquedas esperan un instante mientras escribes y hay menos animaciones pesadas.
+Historial de pagos: haz clic en el nombre de un cliente para ver cuándo y cuánto pagó.
+Resumen del mes: cobrado, cantidad de pagos, por cobrar y total esperado, también por grupo (menú ⋯), con botón para exportar los pagos.
+Deshacer: revierte un pago, corte, borrado o edición hecho por error (barra de 8 segundos o menú ⋯).
 Actualizar ahora es solo una barra de descarga: se cambia por la versión nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.
 Arreglado el aviso «la descarga no coincide con version.json» al actualizar.

@@ -8,6 +8,8 @@
    Al abrir Gax (PC o celular) aparece la ventana con las novedades y cada persona elige si instalar o no.
    Copia tambien `win.html` a `windows/static/index.html` (son el mismo archivo).
 
+Si solo cambias el celular, sube `GAX_V` solo en `apk.html`: `make_version.py` guarda `v_apk` y la PC no ve ninguna actualizacion.
+
 ## Cambios del programa de Windows (app.py)
 1. Cambia lo que necesites en `windows/app.py` y sube `NATIVE_V` (ej. de 1 a 2).
 2. Si la pantalla nueva USA algo nuevo de app.py, escribe en `native_min.txt` ese mismo numero (ej. 2).

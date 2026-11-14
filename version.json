@@ -1,15 +1,23 @@
 {
- "v": 21,
- "win": "56b01e01dff74c1b8710c4e01f98815ec1d4c1b87943579dc6c1b85b1e948ea8",
- "apk": "29cd15baec719d5d81ea1ac1caf7b20a8bb50b275339949bf57375810a74beb3",
+ "v": 22,
+ "win": "49d566729b06d0330cf675b7988956a2041b6ecd399bfff6b9d9e5e7357f6e55",
+ "apk": "6b594fd3510c1a45531c67d20bb78c19f946159890570923326202a020837f28",
  "native_min": 1,
  "notes": [
+  "La lista de clientes carga m\u00e1s r\u00e1pido y se siente m\u00e1s fluida: se pinta por tandas, las b\u00fasquedas esperan un instante mientras escribes y hay menos animaciones pesadas.",
+  "Historial de pagos: haz clic en el nombre de un cliente para ver cu\u00e1ndo y cu\u00e1nto pag\u00f3.",
+  "Resumen del mes: cobrado, cantidad de pagos, por cobrar y total esperado, tambi\u00e9n por grupo (men\u00fa \u22ef), con bot\u00f3n para exportar los pagos.",
+  "Deshacer: revierte un pago, corte, borrado o edici\u00f3n hecho por error (barra de 8 segundos o men\u00fa \u22ef).",
   "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
   "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
  ],
- "native": {
-  "v": 5,
-  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v22/Gax.exe",
-  "sha256": "b5ae02af9e02d2ac00e50a74a48302e7e67d37b410f3e534e973534b087d8ed8"
- }
+ "notes_apk": [
+  "Celular mucho m\u00e1s fluido: la lista, el scroll, las b\u00fasquedas y las animaciones van m\u00e1s r\u00e1pido y sin trabarse.",
+  "Historial de pagos: toca el nombre de un cliente para ver cu\u00e1ndo y cu\u00e1nto pag\u00f3.",
+  "Resumen del mes: cobrado, por cobrar y total esperado, tambi\u00e9n por grupo (men\u00fa \u22ef).",
+  "Deshacer: revierte un pago, corte, borrado o edici\u00f3n hecho por error.",
+  "Exportar a Excel: copia o descarga la lista de clientes y los pagos (men\u00fa \u22ef).",
+  "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
+  "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
+ ]
 }

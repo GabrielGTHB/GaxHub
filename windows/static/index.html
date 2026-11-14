@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=21;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=22;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -448,6 +448,14 @@ dialog{max-width:100vw}
 #ud .nw li{position:relative;padding-left:18px;font-size:14px;line-height:1.45}
 #ud .nw li::before{content:"";position:absolute;left:3px;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--a)}
 #ud .note:empty{display:none}
+/* v22 rendimiento (PC): menos trabajo por fotograma */
+dialog::backdrop{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(10,20,25,.55)}
+@keyframes fdown{from{opacity:0;transform:var(--adn,translateY(-18px))}}
+@keyframes fup{from{opacity:0;transform:var(--aup,translateY(14px))}}
+@keyframes dIn{from{opacity:0;transform:var(--ast,translateY(20px) scale(.94))}}
+html.anim dialog[open] .g>*,html.anim dialog[open] .opts>*{animation:none}
+html.anim .chip.vencido::before{animation:none}
+html.anim .row:hover,html.anim .st:hover{box-shadow:none}
 </style>
 <script>
 (function(){
@@ -525,6 +533,7 @@ desenfoque:{n:'Desenfoque',v:{'--ast':'scale(1.06)','--dot':'scale(1.04)','--adn
 elastico:{n:'Elástico',v:{'--ast':'scaleX(1.2) scaleY(.6)','--dot':'scaleX(1.1) scaleY(.8)','--adn':'scaleX(1.12) scaleY(.7)','--aup':'scaleX(1.12) scaleY(.7)','--mst':'scaleX(1.3) scaleY(.6)','--rh':'scaleX(1.01) scaleY(1.02)','--pre':'scaleY(.7)','--dd':'.55s','--de':'cubic-bezier(.25,1.7,.4,.95)'},rf:{transform:'scaleX(1.25) scaleY(.55)'},rd:600,rs:45,re:'cubic-bezier(.25,1.7,.4,.95)'},
 neon:{n:'Neón',v:{'--ast':'scale(.96)','--dot':'scale(.97)','--adn':'translateY(-8px)','--aup':'translateY(8px)','--mst':'scale(.96)','--rh':'translateX(3px)','--pre':'translateY(6px)','--asf':'drop-shadow(0 0 16px var(--a)) brightness(1.5)','--dd':'.45s','--de':'ease-out'},rf:a=>({transform:'scale(.97)',boxShadow:'0 0 26px 3px '+a}),rt:{boxShadow:'0 0 0 0 transparent'},rd:650,rs:50,re:'ease-out'}
 };
+(function(){Object.keys(ASTY).forEach(k=>{const t=ASTY[k];if(t.v)delete t.v['--asf'];['rf','rt'].forEach(q=>{const f=t[q];if(typeof f==='function')t[q]={transform:'scale(.97)'};else if(f){delete f.filter;delete f.boxShadow;if(!Object.keys(f).length)delete t[q]}})})})();
 function applyPrefs(){
 const h=document.documentElement,s=h.style;
 if(P.theme!=='auto')h.setAttribute('data-theme',P.theme);else h.removeAttribute('data-theme');
@@ -562,7 +571,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 <div class="btns"><button class="pri" onclick="openForm()">＋ Nuevo cliente</button><button class="arpb" onclick="openArp()" title="ARP del MikroTik" aria-label="ARP del MikroTik">ARP</button><button class="more" onclick="openMore(this)" aria-label="Más opciones" title="Más"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>
 </header>
 <div class="tools">
-<input id="q" type="search" placeholder="Buscar cliente, IP, teléfono o queue" oninput="render(true)">
+<input id="q" type="search" placeholder="Buscar cliente, IP, teléfono o queue" oninput="renderSoon()">
 <select id="gsel" onchange="setGrp(this.value)" aria-label="Grupo"></select>
 <select id="so" onchange="setSort(this.value)" aria-label="Ordenar por">
 <option value="nombre">Ordenar: nombre</option><option value="ip">Ordenar: IP</option><option value="estado">Ordenar: estado</option><option value="pago">Ordenar: fecha de pago</option><option value="precio">Ordenar: precio</option><option value="plan">Ordenar: velocidad</option><option value="uso">Ordenar: consumo total</option><option value="ahora">Ordenar: consumo ahora</option><option value="grupo">Ordenar: grupo</option>
@@ -582,7 +591,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 </div>
 
 <div id="mm" class="menu" hidden>
-<button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openCfg)">Ajustes</button>
+<button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openSum)">Resumen del mes</button><button onclick="mmGo(undoLast)">Deshacer último cambio</button><button onclick="mmGo(openCfg)">Ajustes</button>
 </div>
 <button class="fab pri" onclick="openForm()" aria-label="Nuevo cliente">＋</button>
 <div class="nav" id="nav">
@@ -592,7 +601,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <dialog id="bd"><h2 id="bt"></h2><p class="note" id="bdsc" style="margin:-6px 0 8px"></p>
-<div class="bfl"><input id="bq" type="search" placeholder="Buscar cliente" oninput="bdRender()"><select id="bg" onchange="bdRender()"></select></div>
+<div class="bfl"><input id="bq" type="search" placeholder="Buscar cliente" oninput="bdSoon()"><select id="bg" onchange="bdRender()"></select></div>
 <div class="bfl"><button class="sm" onclick="bdAll(1)">Marcar todos</button><button class="sm" onclick="bdAll(0)">Quitar marcas</button><button class="sm" id="bov" onclick="bdOver()">Solo los que deben</button></div>
 <div id="bl" class="bl"></div><p class="note" id="bsum"></p>
 <div class="foot"><button onclick="$('bd').close()">Cancelar</button><button id="bgo" onclick="bdGo()"></button></div></dialog>
@@ -691,26 +700,26 @@ const $=id=>document.getElementById(id);
 const LBL={activo:'Al día',vencido:'Vencido',cortado:'Cortado'};
 const ord={vencido:0,cortado:1,activo:2};
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const today=()=>iso(new Date());
+let _tdK=0,_tdV='',_tdM=0;const today=()=>{const n=Date.now();if(n-_tdK>1000||!_tdV){_tdK=n;_tdV=iso(new Date());_tdM=new Date(_tdV+'T00:00').getTime()}return _tdV};
 const get=id=>clients.find(c=>c.id===id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const status=c=>c.cut?'cortado':(c.paid<today()?'vencido':'activo');
 const fmtDate=s=>{if(!s)return'-';const p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0]};
-const dias=p=>Math.round((new Date(p+'T00:00')-new Date(today()+'T00:00'))/864e5);
+const dias=p=>{today();return Math.round((new Date(p+'T00:00').getTime()-_tdM)/864e5)};
 const hue=n=>{let h=0;for(const ch of String(n))h=(h*31+ch.charCodeAt(0))%360;return h};
 const ini=n=>String(n).trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
 const ipKey=ip=>ip?ip.split('.').reduce((a,x)=>a*256+(+x||0),0):Infinity;
-const nm=(a,b)=>a.name.localeCompare(b.name,'es');
+const COL=new Intl.Collator('es'),cdate=(x,y)=>x<y?-1:x>y?1:0;const nm=(a,b)=>COL.compare(a.name,b.name);
 const SORTS={
 nombre:nm,
 ip:(a,b)=>ipKey(a.ip)-ipKey(b.ip),
-estado:(a,b)=>ord[status(a)]-ord[status(b)]||a.paid.localeCompare(b.paid),
-pago:(a,b)=>a.paid.localeCompare(b.paid),
+estado:(a,b)=>ord[status(a)]-ord[status(b)]||cdate(a.paid,b.paid),
+pago:(a,b)=>cdate(a.paid,b.paid),
 precio:(a,b)=>(+a.price||0)-(+b.price||0),
 plan:(a,b)=>(+a.down||0)-(+b.down||0),
 uso:(a,b)=>useTot(a)-useTot(b),
 ahora:(a,b)=>useNow(a)-useNow(b),
-grupo:(a,b)=>(a.group?0:1)-(b.group?0:1)||(a.group||'').localeCompare(b.group||'','es')};
+grupo:(a,b)=>(a.group?0:1)-(b.group?0:1)||COL.compare(a.group||'',b.group||'')};
 const DEFDIR={nombre:1,ip:1,estado:1,pago:1,precio:-1,plan:-1,uso:-1,ahora:-1,grupo:1};
 const LBLDIR={nombre:['A → Z','Z → A'],ip:['Menor a mayor','Mayor a menor'],estado:['Vencidos primero','Al día primero'],pago:['Más antiguo primero','Más reciente primero'],precio:['Menor a mayor','Mayor a menor'],plan:['Menor a mayor','Mayor a menor'],uso:['Menor a mayor','Mayor a menor'],ahora:['Menor a mayor','Mayor a menor'],grupo:['A → Z','Z → A']};
 if(!(sortBy in SORTS))sortBy='nombre';
@@ -737,7 +746,7 @@ function useHtml(k){const u=USE[k];if(!u)return '<span class="mu">'+(useErr?'Sin
 return `<div>${fmtR(u.rd)} <small>↓</small> ${fmtR(u.ru)} <small>↑</small></div><div class="mu" title="Total desde que se reinició el contador">${fmtB(u.bd)} <small>↓</small> ${fmtB(u.bu)} <small>↑</small></div>`}
 function paintUse(){document.querySelectorAll('#rows .use').forEach(el=>{const h=useHtml(el.dataset.q);if(el._h!==h){el._h=h;el.innerHTML=h}})}
 function pollUse(){if(document.hidden||useBusy)return;useBusy=true;
-fetch('api/router/usage').then(r=>r.json()).then(d=>{if(d.error){useErr=d.error;USE={}}else{USE=d.usage;useErr=''}$('usehd').title=useErr||'Velocidad actual y total desde que se reinició el contador de la queue';paintUse();if((sortBy==='uso'||sortBy==='ahora')&&!document.querySelector('#rows .row:hover'))render()}).catch(()=>{}).then(()=>{useBusy=false})}
+fetch('api/router/usage').then(r=>r.json()).then(d=>{if(d.error){useErr=d.error;USE={}}else{USE=d.usage;useErr=''}$('usehd').title=useErr||'Velocidad actual y total desde que se reinició el contador de la queue';paintUse();if((sortBy==='uso'||sortBy==='ahora')&&!document.querySelector('#rows .row:hover')&&!document.querySelector('dialog[open]'))render(true)}).catch(()=>{}).then(()=>{useBusy=false})}
 const useTot=c=>{const u=USE[(c.queue||'').toLowerCase()];return u?u.bd+u.bu:-1};
 const useNow=c=>{const u=USE[(c.queue||'').toLowerCase()];return u?u.rd+u.ru:-1};
 const ICE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -748,13 +757,22 @@ const when=d===0?'vence hoy':d>0?`vence en ${d} día${d>1?'s':''}`:`venció hace
 const act=c.cut?`<button class="sm r-back" onclick="toggleCut(${c.id})">Reactivar</button>`:`<button class="sm r-cut" onclick="toggleCut(${c.id})">Cortar</button>`;
 const sub=[c.ip?`<span class="ip" data-ip="${esc(c.ip)}">${esc(c.ip)}</span>`:'',c.queue?`<span class="qn">${esc(c.queue)}</span>`:'',c.phone?`<span class="ph">${esc(c.phone)}</span>`:''].filter(Boolean).join('<i class="dot"></i>');
 const q=esc((c.queue||'').toLowerCase());
-return `<div class="row ${s}" data-id="${c.id}" data-i="${i}" data-sig="${s}|${c.paid}|${c.cut?1:0}"><div class="who"><span class="av" style="--h:${hue(c.name)}">${esc(ini(c.name))}</span><div class="wm"><div class="nm">${esc(c.name)}${s!=='activo'?`<span class="chip ${s}">${LBL[s]}</span>`:''}${c.group?`<span class="gtag" style="--h:${hue(c.group)}">${esc(c.group)}</span>`:''}</div><div class="sl">${sub||'<span>Sin IP ni queue</span>'}</div></div></div>
+return `<div class="row ${s}" data-id="${c.id}" data-i="${i}" data-sig="${s}|${c.paid}|${c.cut?1:0}"><div class="who" onclick="openHist(${c.id})"><span class="av" style="--h:${hue(c.name)}">${esc(ini(c.name))}</span><div class="wm"><div class="nm">${esc(c.name)}${s!=='activo'?`<span class="chip ${s}">${LBL[s]}</span>`:''}${c.group?`<span class="gtag" style="--h:${hue(c.group)}">${esc(c.group)}</span>`:''}</div><div class="sl">${sub||'<span>Sin IP ni queue</span>'}</div></div></div>
 <div>${has?`<div class="pl">${c.down}<small>↓</small> ${c.up}<small>↑</small> <small>Mbps</small></div><div class="bar2"><i style="width:${Math.max(6,Math.min(100,c.down/mx*100))}%"></i></div>`:'<span class="wn2">Sin plan</span>'}</div>
 <div class="use" data-q="${q}">${useHtml((c.queue||'').toLowerCase())}</div>
 <div><div class="pr">${esc(c.price||0)}</div><div class="mu wh ${s}" title="${fmtDate(c.paid)}">${when}</div></div>
 <div class="acts">${act}<button class="sm r-pay" title="Registrar pago" onclick="pay(${c.id})">Pago</button><button class="ib" title="Editar" aria-label="Editar" onclick="openForm(${c.id})">${ICE}</button><button class="ib bad" title="Borrar" aria-label="Borrar" onclick="del(${c.id})">${ICD}</button></div></div>`}
 let firstRender=true,revealNext=false,rio=null;
-function snap(){const m={};document.querySelectorAll('#rows .row').forEach((r,i)=>{if(i<40)m[r.dataset.id]={y:r.getBoundingClientRect().top,sig:r.dataset.sig}});return m}
+let _rt=0,_bt=0,_pr=null,_prT=0;
+function renderSoon(){clearTimeout(_rt);_rt=setTimeout(()=>render(true),140)}
+function bdSoon(){clearTimeout(_bt);_bt=setTimeout(bdRender,140)}
+function paintRows(list,mx){clearTimeout(_prT);_pr=null;const el=$('rows'),F=22;
+if(list.length<=F+10){el.innerHTML=list.map((c,i)=>row(c,mx,i)).join('');return}
+el.innerHTML=list.slice(0,F).map((c,i)=>row(c,mx,i)).join('');_pr={list:list,mx:mx,i:F};_prT=setTimeout(nextRows,30)}
+function nextRows(){clearTimeout(_prT);const p=_pr;if(!p)return;const e=Math.min(p.list.length,p.i+30);let h='';for(let k=p.i;k<e;k++)h+=row(p.list[k],p.mx,k);
+$('rows').insertAdjacentHTML('beforeend',h);p.i=e;if(e>=p.list.length)_pr=null;else _prT=setTimeout(nextRows,24)}
+function flushRows(){while(_pr)nextRows()}
+function snap(){const m={};document.querySelectorAll('#rows .row').forEach((r,i)=>{if(i<24)m[r.dataset.id]={y:r.getBoundingClientRect().top,sig:r.dataset.sig}});return m}
 function setNum(el,to,fmt,delay){clearTimeout(el._tm);cancelAnimationFrame(el._raf);const from=el._v||0;el._v=to;
 if(!P.anim||(from===to&&!delay)){el.textContent=fmt(to);return}
 const go=()=>{const t0=performance.now(),dur=700;const step=now=>{const k=Math.min(1,(now-t0)/dur);el.textContent=fmt(k<1?Math.round(from+(to-from)*(1-Math.pow(1-k,3))):to);if(k<1)el._raf=requestAnimationFrame(step)};el._raf=requestAnimationFrame(step)};
@@ -762,15 +780,15 @@ if(delay)el._tm=setTimeout(go,delay);else go()}
 function rowIn(r,d,acc){const S=ASTY[P.astyle]||ASTY.clasico;let f=S.rf||{transform:'translateY(16px) scale(.98)'};if(typeof f==='function')f=f(acc);
 r.animate([Object.assign({opacity:0},f),Object.assign({opacity:1,transform:'none'},S.rt||{})],{duration:S.rd||420,delay:d,easing:S.re||'cubic-bezier(.2,.8,.2,1)',fill:'backwards'})}
 function previewAnim(){if(!P.anim)return;const acc=getComputedStyle(document.documentElement).getPropertyValue('--a').trim()||'#0f766e',S=ASTY[P.astyle]||ASTY.clasico;
-[...$('rows').children].slice(0,10).forEach((r,i)=>rowIn(r,i*(S.rs||40),acc));
+[...$('rows').children].slice(0,8).forEach((r,i)=>rowIn(r,i*(S.rs||40),acc));
 const pd=$('pd');pd.style.animation='none';void pd.offsetWidth;pd.style.animation=''}
 function animRows(prev,dl){if(!P.anim)return;const E='cubic-bezier(.2,.8,.2,1)',acc=getComputedStyle(document.documentElement).getPropertyValue('--a').trim()||'#0f766e';let ni=0;
-[...$('rows').children].slice(0,40).forEach((r,i)=>{const p=prev[r.dataset.id],bar=r.querySelector('.bar2 i');
+[...$('rows').children].slice(0,24).forEach((r,i)=>{const p=prev[r.dataset.id],bar=r.querySelector('.bar2 i');
 if(p){const dy=p.y-r.getBoundingClientRect().top;if(Math.abs(dy)>3)r.animate([{transform:`translateY(${dy}px)`},{transform:'none'}],{duration:420,easing:E});
-if(p.sig!==r.dataset.sig)r.animate([{boxShadow:`0 0 0 0 ${acc}`},{boxShadow:'0 0 0 7px transparent'}],{duration:900,easing:'ease-out'})}
-else if(i<14){const d=dl+ni++*((ASTY[P.astyle]||ASTY.clasico).rs||40);rowIn(r,d,acc);
+if(p.sig!==r.dataset.sig)r.animate([{opacity:.4},{opacity:1}],{duration:450,easing:'ease-out'})}
+else if(i<9){const d=dl+ni++*((ASTY[P.astyle]||ASTY.clasico).rs||40);rowIn(r,d,acc);
 if(bar)bar.animate([{transform:'scaleX(0)'},{transform:'none'}],{duration:700,delay:d+200,easing:E,fill:'backwards'})}})}
-function reveal(){if(rio)rio.disconnect();if(!P.anim||!('IntersectionObserver' in window))return;
+function reveal(){if(rio)rio.disconnect();return;if(!P.anim||!('IntersectionObserver' in window))return;
 rio=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.remove('pre');rio.unobserve(en.target)}}),{rootMargin:'0px 0px -4% 0px'});
 [...$('rows').children].forEach((r,i)=>{if(i>=14){r.classList.add('pre');rio.observe(r)}});
 setTimeout(()=>document.querySelectorAll('.row.pre').forEach(r=>r.classList.remove('pre')),3500)}
@@ -784,11 +802,11 @@ Object.keys(vals).forEach((k,j)=>setNum($('s'+k),vals[k],k==='4'?money:String,fi
 $('pills').innerHTML=[['todos','Todos',S.length],['activo','Al día',n.activo],['vencido','Vencidos',n.vencido],['cortado','Cortados',n.cortado]].map(x=>`<button class="pill${filt===x[0]?' on':''}" onclick="setF('${x[0]}')">${x[1]}<i>${x[2]}</i></button>`).join('');
 const list=clients.filter(c=>inGrp(c)&&(filt==='todos'||status(c)===filt)&&(!t||(c.name+' '+c.phone+' '+c.queue+' '+(c.ip||'')).toLowerCase().includes(t))).sort(cmp);
 const mx=Math.max(1,...clients.map(c=>+c.down||0));
-$('rows').innerHTML=list.map((c,i)=>row(c,mx,i)).join('');
+paintRows(list,mx);
 $('empty').hidden=list.length>0;
 {const T=$('tot'),sum=list.reduce((s,c)=>s+(+c.price||0),0);T.hidden=!list.length;T.innerHTML=`<span>Pago total · ${list.length} cliente${list.length===1?'':'s'}${list.length!==clients.length?' (filtrado)':''}</span><b>$${money(sum)}</b>`}
 $('empty').textContent=clients.length?'No hay clientes con ese filtro o búsqueda.':'Aún no hay clientes. Usa «Importar del MikroTik» en el menú ⋯ para traer los que ya tienes, o agrega uno con Nuevo cliente.';
-if(!quiet){animRows(prev,dl);if(firstRender||revealNext)reveal()}
+if(!quiet){if(firstRender&&introActive)afterIntro(()=>animRows({},40));else animRows(prev,dl);if(firstRender||revealNext)reveal()}
 revealNext=false;firstRender=false;if(window.navUpd)navUpd()}
 function showCmd(title,text){$('ct').textContent=title;$('cmd').textContent=text;$('cd').showModal()}
 function ask(t,m,ok,danger){return new Promise(r=>{$('at').textContent=t;$('am').textContent=m;const y=$('ay');y.textContent=ok||'Aceptar';y.className=danger?'r-cut':'pri';const d=$('ad');d.returnValue='';d.onclose=()=>r(d.returnValue==='y');d.showModal()})}
@@ -1007,7 +1025,7 @@ const q=$('arq').value.trim().toLowerCase(),by={};clients.forEach(c=>{if(c.ip)by
 const rows=ARP.filter(r=>!q||(r.address+' '+r.mac+' '+r.interface+' '+(by[r.address]||'')).toLowerCase().indexOf(q)>=0).sort(arpCmp(by));
 $('arl').innerHTML=rows.length?rows.map(r=>'<div class="ar"><b>'+escA(r.address)+'</b><span>'+escA(r.mac||'-')+'</span><i>'+escA(by[r.address]||r.interface)+'</i><em class="'+(r.status==='reachable'||r.status==='permanent'?'on':'')+'"></em></div>').join(''):'<p class="note">Sin resultados</p>'}
 function loadArp(){$('arl').innerHTML='<p class="note">Cargando…</p>';fetch('api/router/arp').then(r=>r.json()).then(d=>{if(d.error){$('arl').innerHTML='<p class="note">'+escA(d.error)+'</p>';return}ARP=d.arp||[];paintArp()}).catch(()=>{$('arl').innerHTML='<p class="note">No disponible. Si estás en Windows, actualiza el programa.</p>'})}
-$('arq').addEventListener('input',paintArp);
+$('arq').addEventListener('input',()=>{clearTimeout(window._arT);window._arT=setTimeout(paintArp,140)});
 (function(){const o=document.querySelector('#pd .opts'),g=[];let cur=null;[].slice.call(o.children).forEach(n=>{if(n.classList.contains('sec')){cur={t:n.textContent,n:[]};g.push(cur)}else if(cur)cur.n.push(n)});
 const tb=document.createElement('div');tb.className='tabs';o.parentNode.insertBefore(tb,o);
 const show=i=>{g.forEach((x,j)=>x.n.forEach(n=>{n.style.display=j===i?'':'none'}));[].slice.call(tb.children).forEach((b,j)=>b.classList.toggle('on',j===i))};
@@ -1067,9 +1085,9 @@ function upd(){raf=0;const y=scrollY,max=document.documentElement.scrollHeight-i
 window.navUpd=()=>{if(!raf)raf=requestAnimationFrame(upd)};
 addEventListener('scroll',navUpd,{passive:true});addEventListener('resize',navUpd);
 up.onclick=()=>scrollTo({top:0,behavior:smooth()});
-dn.onclick=()=>{const end=()=>document.documentElement.scrollHeight-innerHeight;scrollTo({top:end(),behavior:smooth()});let n=0;const fix=()=>{if(scrollY<end()-4&&n++<8){scrollTo({top:end(),behavior:'auto'});setTimeout(fix,140)}};setTimeout(fix,P.anim?650:60)};
+dn.onclick=()=>{flushRows();const end=()=>document.documentElement.scrollHeight-innerHeight;scrollTo({top:end(),behavior:smooth()});let n=0;const fix=()=>{if(scrollY<end()-4&&n++<8){scrollTo({top:end(),behavior:'auto'});setTimeout(fix,140)}};setTimeout(fix,P.anim?650:60)};
 navUpd()})();
-addEventListener('scroll',()=>{$('mm').hidden=true},{passive:true});
+addEventListener('scroll',()=>{const m=$('mm');if(!m.hidden)m.hidden=true},{passive:true});
 document.addEventListener('pointerdown',e=>{if(!P.anim)return;const b=e.target.closest&&e.target.closest('button.pri,.qb,.sm,.pill,.menu button,.nav button,.fab,.ib,.seg button');
 if(!b||b.disabled||b.closest('#intro'))return;const r=b.getBoundingClientRect(),s=Math.max(r.width,r.height)*2.2,el=document.createElement('span');
 el.className='rip';el.style.cssText='width:'+s+'px;height:'+s+'px;left:'+(e.clientX-r.left-s/2)+'px;top:'+(e.clientY-r.top-s/2)+'px';
@@ -1184,6 +1202,92 @@ afterIntro(()=>setTimeout(()=>updCheck(false),800));setInterval(()=>{if(!documen
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-UPDI.last>3600*1000)updCheck(false)});
 /* avisa que la pantalla abrio bien (si no, la actualizacion se descarta sola) */
 setTimeout(()=>{if(!window.__gerr)fetch('api/ready').catch(()=>{});else fetch('api/fail').then(r=>r.json()).then(d=>{if(d&&d.reload)location.replace('app.html')}).catch(()=>{})},1200);
+</script>
+<style>
+.who{cursor:pointer}
+#hd,#rd,#xd{width:min(480px,calc(100% - 24px))}
+@media (max-width:700px){#hd,#rd,#xd{width:100%}}
+.hl{max-height:46vh;overflow:auto;margin:0 0 10px;border-top:1px solid var(--b)}
+.hr{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:9px 2px;border-bottom:1px solid var(--b)}
+.hr small{grid-column:1/-1;color:var(--m)}.hr span{font-weight:700;color:var(--ok)}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.sg>div{background:var(--s2);border-radius:12px;padding:10px 12px}
+.sg span{color:var(--m);font-size:12.5px}.sg b{display:block;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.sgr{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;font-size:13.5px;margin:6px 0 4px}.sgr i{font-style:normal;color:var(--m);text-align:right}
+.mn{display:flex;align-items:center;justify-content:space-between;gap:8px}.mn b{font-size:16px}
+#xd textarea{width:100%;min-height:160px;resize:vertical;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre;color:var(--t);background:var(--s2);border:1px solid var(--b);border-radius:var(--rb);padding:10px 12px}
+.ub{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:420px;margin:0 auto;z-index:3100;display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;background:var(--t);color:var(--bg);border-radius:14px;font-size:13.5px;font-weight:600;box-shadow:0 10px 28px -10px rgba(0,0,0,.6)}
+.ub[hidden]{display:none}.ub span{flex:1;min-width:0}.ub button{background:none;border:0;color:inherit;text-decoration:underline;font-weight:800;padding:6px 8px}
+@media (max-width:700px){.ub{bottom:calc(88px + env(safe-area-inset-bottom,0px))}}
+</style>
+<dialog id="hd"><h2 id="hd-t">Pagos</h2><p class="note" id="hd-s" style="margin:-6px 0 8px"></p><div class="hl" id="hd-l"></div><div class="foot"><button class="pri" onclick="$('hd').close()">Cerrar</button></div></dialog>
+<dialog id="rd"><h2>Resumen del mes</h2>
+<div class="mn"><button class="sm" onclick="sumGo(-1)" aria-label="Mes anterior">◀</button><b id="rd-m"></b><button class="sm" onclick="sumGo(1)" aria-label="Mes siguiente">▶</button></div>
+<div class="sg"><div><span>Cobrado</span><b id="rd-c">0</b></div><div><span>Pagos</span><b id="rd-n">0</b></div><div><span>Por cobrar ahora</span><b id="rd-d">0</b></div><div><span>Esperado al mes</span><b id="rd-e">0</b></div></div>
+<p class="note" id="rd-cl" style="margin:0"></p><div class="sgr" id="rd-g"></div><p class="note" id="rd-f"></p>
+<div class="foot"><button onclick="exportPays()">Exportar pagos</button><button class="pri" onclick="$('rd').close()">Cerrar</button></div></dialog>
+<dialog id="xd"><h2 id="xd-t">Exportar</h2><p class="note" style="margin:-6px 0 8px">Pulsa «Copiar» y pega en Excel o Google Sheets: queda en columnas. «Descargar» guarda un archivo .csv.</p><textarea id="xd-x" readonly></textarea>
+<div class="foot"><button onclick="xdDl()">Descargar</button><button class="pri" id="xd-c" onclick="xdCopy()">Copiar</button><button onclick="$('xd').close()">Cerrar</button></div></dialog>
+<div class="ub" id="ub" hidden><span id="ub-t"></span><button id="ub-b" onclick="undoLast()">Deshacer</button></div>
+<script>
+/* ===== v22: historial de pagos, resumen del mes, exportar pagos y deshacer ===== */
+let HIST={},_hT=0;
+try{HIST=JSON.parse(localStorage.getItem('gax.hist')||'{}')||{}}catch(e){HIST={}}
+function hSave(){clearTimeout(_hT);_hT=setTimeout(()=>{try{localStorage.setItem('gax.hist',JSON.stringify(HIST))}catch(e){}},250)}
+function hAdd(id,e){const a=HIST[id]=HIST[id]||[];a.push(e);if(a.length>240)a.splice(0,a.length-240);hSave()}
+const _doPay0=doPay;doPay=function(c){const a=+c.price||0,w=_doPay0(c);hAdd(c.id,{t:Date.now(),a:a,d:today(),to:c.paid});return w};
+const mon$=v=>'$'+money(Math.round((+v||0)*100)/100);
+function openHist(id){const c=get(id);if(!c)return;const l=(HIST[id]||[]).slice().reverse();$('hd-t').textContent='Pagos de '+c.name;
+const tot=l.reduce((s,e)=>s+(+e.a||0),0);
+$('hd-s').textContent=l.length?(l.length+' pago'+(l.length>1?'s':'')+' registrado'+(l.length>1?'s':'')+' · total '+mon$(tot)):('Aún no hay pagos guardados en el historial.'+(c.lp?' Su último pago fue el '+fmtDate(c.lp)+'.':''));
+$('hd-l').innerHTML=l.map(e=>'<div class="hr"><b>'+fmtDate(e.d)+'</b><span>'+mon$(e.a)+'</span><small>pagado hasta '+fmtDate(e.to)+'</small></div>').join('');
+$('hd').showModal()}
+/* ---- resumen del mes ---- */
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let SM={y:0,m:0};
+function openSum(){const n=new Date();SM={y:n.getFullYear(),m:n.getMonth()};sumRender();$('rd').showModal()}
+function sumGo(k){SM.m+=k;if(SM.m<0){SM.m=11;SM.y--}if(SM.m>11){SM.m=0;SM.y++}sumRender()}
+function sumRender(){const key=SM.y+'-'+String(SM.m+1).padStart(2,'0');let col=0,n=0;const seen={};
+Object.keys(HIST).forEach(id=>(HIST[id]||[]).forEach(e=>{if(String(e.d).slice(0,7)===key){col+=+e.a||0;n++;seen[id]=1}}));
+let est=false;clients.forEach(c=>{if(c.lp&&String(c.lp).slice(0,7)===key&&!seen[c.id]){col+=+c.price||0;n++;est=true}});
+let debt=0,exp=0,k={activo:0,vencido:0,cortado:0};clients.forEach(c=>{const s=status(c);k[s]++;exp+=+c.price||0;if(s!=='activo')debt+=+c.price||0});
+$('rd-m').textContent=MESES[SM.m]+' '+SM.y;$('rd-c').textContent=mon$(col);$('rd-n').textContent=n;$('rd-d').textContent=mon$(debt);$('rd-e').textContent=mon$(exp);
+$('rd-cl').textContent=clients.length+' clientes: '+k.activo+' al día, '+k.vencido+' vencidos, '+k.cortado+' cortados.';
+const gs=GR();let h='';if(gs.length){h='<b>Grupo</b><i>Clientes</i><i>Por cobrar</i>';gs.concat(clients.some(c=>!c.group)?['']:[]).forEach(g=>{const l=clients.filter(c=>(c.group||'')===g);h+='<span>'+esc(g||'Sin grupo')+'</span><i>'+l.length+'</i><i>'+mon$(l.reduce((s,c)=>s+(status(c)!=='activo'?(+c.price||0):0),0))+'</i>'})}
+$('rd-g').innerHTML=h;$('rd-f').textContent=est?'Los pagos de antes de esta versión se calculan con el último pago de cada cliente y su precio actual.':'Los pagos se cuentan desde que se instaló esta versión.'}
+/* ---- exportar pagos ---- */
+let XD={tsv:'',csv:'',name:'gax.csv'};
+const cell=v=>String(v==null?'':v);
+function csvOf(rows){return rows.map(r=>r.map(v=>{v=cell(v);return /[";\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(';')).join('\r\n')}
+function tsvOf(rows){return rows.map(r=>r.map(v=>cell(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n')}
+function showExport(title,rows,name){XD={tsv:tsvOf(rows),csv:'sep=;\r\n'+csvOf(rows),name:name};$('xd-t').textContent=title;$('xd-x').value=XD.tsv;$('xd-c').textContent='Copiar';$('xd').showModal()}
+function exportPays(){const rows=[['Fecha','Cliente','Monto','Pagado hasta']];Object.keys(HIST).forEach(id=>{const c=get(+id);(HIST[id]||[]).forEach(e=>rows.push([e.d,c?c.name:'(cliente borrado)',e.a,e.to]))});
+rows.splice(1,rows.length-1,...rows.slice(1).sort((a,b)=>a[0]<b[0]?1:a[0]>b[0]?-1:0));
+if(rows.length<2){alert('Aún no hay pagos en el historial.');return}showExport('Exportar pagos ('+(rows.length-1)+')',rows,'gax-pagos-'+today()+'.csv')}
+function xdCopy(){const t=XD.tsv,b=$('xd-c'),ok=()=>{b.textContent='¡Copiado!'},old=()=>{const x=$('xd-x');x.removeAttribute('readonly');x.focus();x.select();try{document.execCommand('copy')&&ok()}catch(e){}x.setAttribute('readonly','')};
+if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok).catch(old);else old()}
+function xdDl(){try{const b=new Blob(['\ufeff'+XD.csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=XD.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}catch(e){xdCopy()}}
+/* ---- deshacer ---- */
+let UNDO=[],_pend=null,_pT=0,_uT=0;
+function snapBefore(){_pend={s:JSON.stringify(clients),h:JSON.stringify(HIST)};clearTimeout(_pT);_pT=setTimeout(()=>{_pend=null},60000)}
+function undoLabel(ps){const prev=JSON.parse(ps),pm={},cm={},ch=[];prev.forEach(c=>pm[c.id]=c);clients.forEach(c=>cm[c.id]=c);
+prev.forEach(p=>{const c=cm[p.id];if(!c)ch.push(['del',p]);else if(JSON.stringify(p)!==JSON.stringify(c))ch.push([!!c.cut!==!!p.cut?'cut':c.paid!==p.paid?'pay':'edit',c])});
+clients.forEach(c=>{if(!pm[c.id])ch.push(['new',c])});
+if(!ch.length)return '';if(ch.length>1)return ch.length+' cambios';
+const k=ch[0][0],c=ch[0][1];return ({del:'Borrar a ',cut:(c.cut?'Cortar a ':'Reactivar a '),pay:'Pago de ',edit:'Cambios en ',new:'Nuevo cliente: '})[k]+c.name}
+function showUndo(t,plain){$('ub-t').textContent=t;$('ub-b').hidden=!!plain;$('ub').hidden=false;clearTimeout(_uT);_uT=setTimeout(hideUndo,8000)}
+function hideUndo(){$('ub').hidden=true;clearTimeout(_uT)}
+const _save0=save;save=function(){const p=_pend;_pend=null;const r=_save0.apply(this,arguments);
+if(p){const l=undoLabel(p.s);if(l){UNDO.push({s:p.s,h:p.h,t:l});if(UNDO.length>15)UNDO.shift();showUndo(l)}}return r};
+['toggleCut','pay','del','saveForm','bdGo'].forEach(n=>{const f=window[n];window[n]=function(){snapBefore();return f.apply(this,arguments)}});
+function undoLast(){const u=UNDO.pop();if(!u){showUndo('No hay nada que deshacer',true);return}
+_pend=null;const prev=JSON.parse(u.s),cur={};clients.forEach(c=>cur[c.id]=c);const items=[];
+prev.forEach(p=>{const c=cur[p.id];if(c&&!!c.cut!==!!p.cut&&p.queue&&(p.cut||(p.up>0&&p.down>0)))items.push(p.cut?cutItem(p):restoreItem(p))});
+const gone=prev.some(p=>!cur[p.id]);clients=prev;try{HIST=JSON.parse(u.h)}catch(e){}hSave();save();render();
+const warn='Cliente restaurado en el panel. Si su queue ya se había borrado del MikroTik, se intentará crear de nuevo al guardar (necesita su IP y plan); si no aparece, usa «Enviar clientes al MikroTik» del menú ⋯.';
+if(items.length){showUndo('Deshecho: '+u.t+(gone?' · revisa la queue del cliente restaurado':''),true);run('Deshacer: '+u.t+(gone?' (cliente restaurado)':''),items)}
+else if(gone){showUndo('Deshecho: '+u.t,true);showCmd('Deshacer: '+u.t,warn)}
+else showUndo('Deshecho: '+u.t,true)}
 </script>
 </body>
 </html>
