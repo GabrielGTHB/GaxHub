@@ -35,15 +35,22 @@ if os.path.exists("native_min.txt"):
     nmin = int(open("native_min.txt").read().strip() or 0)
 if nmin:
     meta["native_min"] = nmin
-# novedades.txt: una linea por novedad; es lo que ve la persona en la ventana "Hay una versión nueva"
-if os.path.exists("novedades.txt"):
-    notes = []
-    for ln in open("novedades.txt", encoding="utf-8"):
-        ln = ln.strip()
-        if ln and not ln.startswith("#"):
-            notes.append(ln.lstrip("-*• ").strip()[:240])
-    if notes:
-        meta["notes"] = notes[:12]
+# novedades/vN.txt (N = version de win.html): una linea por novedad; es lo que ve la persona en la ventana "Hay una versión nueva".
+# Debe existir el archivo de la version actual y NO debe quedar ningun log de versiones anteriores (asi no se repite nada).
+nf = os.path.join("novedades", "v%d.txt" % v)
+if not os.path.exists(nf):
+    sys.exit("Falta %s: crea el log de esta version con SOLO lo nuevo (una linea por novedad)." % nf)
+viejos = [x for x in os.listdir("novedades") if x.endswith(".txt") and x != "v%d.txt" % v]
+if viejos:
+    sys.exit("Hay logs viejos en novedades/ (%s): borralos, solo debe quedar v%d.txt." % (", ".join(sorted(viejos)), v))
+notes = []
+for ln in open(nf, encoding="utf-8"):
+    ln = ln.strip()
+    if ln and not ln.startswith("#"):
+        notes.append(ln.lstrip("-*• \t").strip()[:240])
+if not notes:
+    sys.exit("%s esta vacio: escribe que trae esta version." % nf)
+meta["notes"] = notes[:12]
 # novedades_apk.txt (opcional): lo que ve SOLO el celular en la ventana de version nueva (la PC sigue leyendo "notes")
 if os.path.exists("novedades_apk.txt"):
     na = []

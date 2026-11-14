@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=22;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=23;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -591,7 +591,7 @@ if(P.anim&&P.intro!=='none'){document.documentElement.classList.add('intro');doc
 </div>
 
 <div id="mm" class="menu" hidden>
-<button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openSum)">Resumen del mes</button><button onclick="mmGo(undoLast)">Deshacer último cambio</button><button onclick="mmGo(openCfg)">Ajustes</button>
+<button onclick="mmGo(openGrp)">Grupos de clientes</button><button onclick="mmGo(importQ)">Importar del MikroTik</button><button onclick="mmGo(sendAllRouter)">Enviar clientes al MikroTik</button><button id="hipb" onclick="mmGo(openHide)">Privacidad</button><button onclick="mmGo(openPrefs)">Personalizar</button><button onclick="mmGo(openSum)">Resumen del mes</button><button onclick="mmGo(exportClients)">Exportar a Excel</button><button onclick="mmGo(undoLast)">Deshacer último cambio</button><button onclick="mmGo(openCfg)">Ajustes</button>
 </div>
 <button class="fab pri" onclick="openForm()" aria-label="Nuevo cliente">＋</button>
 <div class="nav" id="nav">
@@ -1255,12 +1255,15 @@ $('rd-m').textContent=MESES[SM.m]+' '+SM.y;$('rd-c').textContent=mon$(col);$('rd
 $('rd-cl').textContent=clients.length+' clientes: '+k.activo+' al día, '+k.vencido+' vencidos, '+k.cortado+' cortados.';
 const gs=GR();let h='';if(gs.length){h='<b>Grupo</b><i>Clientes</i><i>Por cobrar</i>';gs.concat(clients.some(c=>!c.group)?['']:[]).forEach(g=>{const l=clients.filter(c=>(c.group||'')===g);h+='<span>'+esc(g||'Sin grupo')+'</span><i>'+l.length+'</i><i>'+mon$(l.reduce((s,c)=>s+(status(c)!=='activo'?(+c.price||0):0),0))+'</i>'})}
 $('rd-g').innerHTML=h;$('rd-f').textContent=est?'Los pagos de antes de esta versión se calculan con el último pago de cada cliente y su precio actual.':'Los pagos se cuentan desde que se instaló esta versión.'}
-/* ---- exportar pagos ---- */
+/* ---- exportar ---- */
 let XD={tsv:'',csv:'',name:'gax.csv'};
 const cell=v=>String(v==null?'':v);
 function csvOf(rows){return rows.map(r=>r.map(v=>{v=cell(v);return /[";\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(';')).join('\r\n')}
 function tsvOf(rows){return rows.map(r=>r.map(v=>cell(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n')}
 function showExport(title,rows,name){XD={tsv:tsvOf(rows),csv:'sep=;\r\n'+csvOf(rows),name:name};$('xd-t').textContent=title;$('xd-x').value=XD.tsv;$('xd-c').textContent='Copiar';$('xd').showModal()}
+function exportClients(){const L={activo:'Al día',vencido:'Vencido',cortado:'Cortado'};
+const rows=[['Nombre','Teléfono','IP','Queue','Grupo','Bajada (Mbps)','Subida (Mbps)','Precio','Pagado hasta','Último pago','Estado']].concat(clients.slice().sort(nm).map(c=>[c.name,c.phone||'',c.ip||'',c.queue||'',c.group||'',c.down||'',c.up||'',c.price||0,c.paid||'',c.lp||'',L[status(c)]]));
+showExport('Exportar clientes ('+clients.length+')',rows,'gax-clientes-'+today()+'.csv')}
 function exportPays(){const rows=[['Fecha','Cliente','Monto','Pagado hasta']];Object.keys(HIST).forEach(id=>{const c=get(+id);(HIST[id]||[]).forEach(e=>rows.push([e.d,c?c.name:'(cliente borrado)',e.a,e.to]))});
 rows.splice(1,rows.length-1,...rows.slice(1).sort((a,b)=>a[0]<b[0]?1:a[0]>b[0]?-1:0));
 if(rows.length<2){alert('Aún no hay pagos en el historial.');return}showExport('Exportar pagos ('+(rows.length-1)+')',rows,'gax-pagos-'+today()+'.csv')}

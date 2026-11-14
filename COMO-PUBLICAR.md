@@ -2,9 +2,10 @@
 
 ## Solo cambios de pantalla (win.html / apk.html)
 1. Edita `win.html` y `apk.html` y sube `GAX_V` (el MISMO numero en los dos).
-2. Escribe en `novedades.txt` que trae la version (una linea por novedad). Eso es lo que la gente ve en la
-   ventana "Hay una versión nueva" cuando abre Gax.
-3. Corre `python tools/make_version.py` y sube todo (html + novedades.txt + version.json) en el mismo commit a `main`.
+2. Crea `novedades/vN.txt` (N = el nuevo `GAX_V`) con SOLO lo nuevo de esa version (una linea por novedad) y BORRA el log
+   anterior: en `novedades/` solo puede quedar un archivo. Eso es lo que la gente ve en la ventana "Hay una versión nueva".
+   `make_version.py` se niega a correr si falta el log de la version o si queda uno viejo.
+3. Corre `python tools/make_version.py` y sube todo (html + novedades/vN.txt + version.json) en el mismo commit a `main`.
    Al abrir Gax (PC o celular) aparece la ventana con las novedades y cada persona elige si instalar o no.
    Copia tambien `win.html` a `windows/static/index.html` (son el mismo archivo).
 

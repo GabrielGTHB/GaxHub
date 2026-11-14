@@ -1,0 +1,2 @@
+# Una linea por novedad. Es el texto que ve la persona en la ventana "Hay una versión nueva".
+Exportar a Excel: copia o descarga la lista de clientes (menú ⋯ > Exportar a Excel). Los pagos se siguen exportando desde el Resumen del mes.

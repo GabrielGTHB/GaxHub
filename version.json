@@ -1,16 +1,10 @@
 {
- "v": 22,
- "win": "a5705f60b4a2b0bef5d38fe280ca1e70dbea1fd89057b9885bc66598a4166b0b",
- "apk": "8ecc0cfa94e9004b7fdf364a3c6184ccb30af2ed56dffe0f9bc142e858f60f9a",
- "v_apk": 23,
+ "v": 23,
+ "win": "b18994064807c2b40edbe595c685b4f4b994bba9d546f61c746ad528cc2ad6f0",
+ "apk": "c670d94e09104294fae991166aa6817712ddfce5e47d0e5af6c01cb1eafef65d",
  "native_min": 1,
  "notes": [
-  "La lista de clientes carga m\u00e1s r\u00e1pido y se siente m\u00e1s fluida: se pinta por tandas, las b\u00fasquedas esperan un instante mientras escribes y hay menos animaciones pesadas.",
-  "Historial de pagos: haz clic en el nombre de un cliente para ver cu\u00e1ndo y cu\u00e1nto pag\u00f3.",
-  "Resumen del mes: cobrado, cantidad de pagos, por cobrar y total esperado, tambi\u00e9n por grupo (men\u00fa \u22ef), con bot\u00f3n para exportar los pagos.",
-  "Deshacer: revierte un pago, corte, borrado o edici\u00f3n hecho por error (barra de 8 segundos o men\u00fa \u22ef).",
-  "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
-  "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
+  "Exportar a Excel: copia o descarga la lista de clientes (men\u00fa \u22ef > Exportar a Excel). Los pagos se siguen exportando desde el Resumen del mes."
  ],
  "notes_apk": [
   "Celular mucho m\u00e1s fluido: la lista, el scroll, las b\u00fasquedas y las animaciones van m\u00e1s r\u00e1pido y sin trabarse.",
@@ -21,10 +15,5 @@
   "Ya no sale el recuadro azul al tocar o seleccionar botones y opciones.",
   "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
   "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
- ],
- "native": {
-  "v": 6,
-  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v23/Gax.exe",
-  "sha256": "ae571abe56efba1e42a3cda76431676d07648b78957bd8633568961824ab0fe0"
- }
+ ]
 }
