@@ -399,7 +399,7 @@ MAX_UPD = 3 * 1024 * 1024
 MAX_EXE = 300 * 1024 * 1024
 # Version del programa (la parte de Python/.exe). Subela cada vez que publiques un Gax.exe nuevo.
 # Es distinta de GAX_V (version de la pantalla/HTML).
-NATIVE_V = 5
+NATIVE_V = 6
 RUN_V = [0]  # version de la pantalla que se esta mostrando
 
 
@@ -414,6 +414,11 @@ def html_version(path):
 
 def _upd(name):
     return os.path.join(UPD_DIR, name)
+
+
+def _clean_notes(a):
+    """Novedades de version.json: maximo 12 lineas de 240 caracteres."""
+    return [str(x).strip()[:240] for x in (a if isinstance(a, list) else []) if str(x).strip()][:12]
 
 
 def _jload(path, default=None):
