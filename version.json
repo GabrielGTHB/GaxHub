@@ -1,24 +1,14 @@
 {
- "v": 23,
- "win": "ed992591ac8f342b9a83f79dad1cd5dc64a4e70a9b135d9847c044cbebc958e9",
- "apk": "8ecc0cfa94e9004b7fdf364a3c6184ccb30af2ed56dffe0f9bc142e858f60f9a",
+ "v": 24,
+ "win": "12d07c0e6e87eaf770a196b77fe2a724ac2330321019738e483b8e699fc5c5bf",
+ "apk": "59daa847bb2b623f7fda0a3b1b5042c8d16dbdeeec131e409f9438b376ed83c9",
  "native_min": 1,
  "notes": [
-  "Exportar a Excel: copia o descarga la lista de clientes (men\u00fa \u22ef > Exportar a Excel). Los pagos se siguen exportando desde el Resumen del mes."
+  "Arreglado el error \u00abConnection unexpectedly closed\u00bb al conectar con el MikroTik: si el puerto es el web (80/443) o el API-SSL, la PC prueba sola el 8728 y el 8729 y guarda el que funcione.",
+  "Los errores de conexi\u00f3n ahora explican qu\u00e9 revisar: puerto, servicio \u00abapi\u00bb en IP > Services, \u00abAvailable From\u00bb, usuario o clave."
  ],
  "notes_apk": [
-  "Celular mucho m\u00e1s fluido: la lista, el scroll, las b\u00fasquedas y las animaciones van m\u00e1s r\u00e1pido y sin trabarse.",
-  "Historial de pagos: toca el nombre de un cliente para ver cu\u00e1ndo y cu\u00e1nto pag\u00f3.",
-  "Resumen del mes: cobrado, por cobrar y total esperado, tambi\u00e9n por grupo (men\u00fa \u22ef).",
-  "Deshacer: revierte un pago, corte, borrado o edici\u00f3n hecho por error.",
-  "Exportar a Excel: copia o descarga la lista de clientes y los pagos (men\u00fa \u22ef).",
-  "Ya no sale el recuadro azul al tocar o seleccionar botones y opciones.",
-  "Actualizar ahora es solo una barra de descarga: se cambia por la versi\u00f3n nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.",
-  "Arreglado el aviso \u00abla descarga no coincide con version.json\u00bb al actualizar."
- ],
- "native": {
-  "v": 6,
-  "exe": "https://github.com/GabrielGTHB/GaxHub/releases/download/v23/Gax.exe",
-  "sha256": "becef8f257651cb39c9c4538f0ed36d12cc81ddf2b40e967d19035d7af0d3316"
- }
+  "Arreglado el error al conectar con el MikroTik: si pones el puerto 8728/8729 (el de la PC), el celular usa solo el 80, y el puerto 443 ahora conecta por https.",
+  "Los errores de conexi\u00f3n ahora dicen qu\u00e9 revisar (IP, red o VPN, servicio \u00abwww\u00bb, RouterOS 7.1 o mayor, permisos) y ya no se queda esperando sin respuesta."
+ ]
 }

@@ -10,6 +10,8 @@ import shutil
 import tempfile
 import urllib.request
 import sqlite3
+import ssl
+import socket
 import threading
 import pathlib
 import webview
@@ -44,12 +46,76 @@ def save_cfg(c):
         json.dump(c, f)
 
 
-def connect(c):
-    kw = dict(host=c["host"], port=int(c["port"]), username=c["user"], password=c["pass"], timeout=8)
+def _ssl_wrap():
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    try:
+        ctx.set_ciphers("ALL:@SECLEVEL=0")  # API-SSL sin certificado usa cifrados anonimos
+    except Exception:
+        pass
+    return ctx.wrap_socket
+
+
+def _open(c, port, use_ssl):
+    kw = dict(host=c["host"], port=int(port), username=c["user"], password=c["pass"], timeout=8)
+    if use_ssl:
+        kw["ssl_wrapper"] = _ssl_wrap()
     try:
         return librouteros.connect(encoding="utf-8", **kw)
     except TypeError:
         return librouteros.connect(**kw)
+
+
+def why(e):
+    """Explica en palabras simples por que no se pudo conectar al MikroTik."""
+    t = str(e) or e.__class__.__name__
+    low = t.lower()
+    if "unexpectedly closed" in low or "connectionclosed" in e.__class__.__name__.lower() or isinstance(e, (ConnectionResetError, ConnectionAbortedError)):
+        return ("el MikroTik cerro la conexion. Revisa: 1) el puerto debe ser el del API (8728), no el 80 ni el 443; "
+                "2) en IP > Services el servicio «api» debe estar activo y su «Available From» debe incluir la IP de esta PC; "
+                "3) el usuario debe tener permiso api. (" + t + ")")
+    if "cannot log in" in low or "invalid user" in low or "invalid password" in low or "bad user" in low:
+        return "usuario o clave incorrectos. (" + t + ")"
+    if isinstance(e, ConnectionRefusedError) or "10061" in t or "refused" in low or "rechaz" in low:
+        return "el MikroTik rechazo la conexion: el servicio «api» (IP > Services) esta desactivado o el puerto es otro. (" + t + ")"
+    if isinstance(e, (socket.timeout, TimeoutError)) or "timed out" in low or "10060" in t:
+        return "el MikroTik no responde. Revisa la IP, que esta PC este en la misma red o VPN y que ningun firewall bloquee el puerto. (" + t + ")"
+    if isinstance(e, socket.gaierror) or "getaddrinfo" in low or "11001" in t:
+        return "la direccion del MikroTik no existe. Revisa la IP. (" + t + ")"
+    return t
+
+
+def connect(c):
+    """Conecta por API. Si el puerto es el web (80/443...) o el API-SSL, prueba solos 8728 y 8729 y guarda el que funcione."""
+    port = int(c["port"])
+    tries = [(port, port == 8729)]
+    if port in (80, 443, 8080, 8081, 8291, 22):
+        tries += [(8728, False), (8729, True)]
+    elif port == 8728:
+        tries += [(8729, True)]
+    elif port == 8729:
+        tries += [(8728, False)]
+    first = None
+    for i, (pt, sl) in enumerate(tries):
+        try:
+            api = _open(c, pt, sl)
+        except Exception as e:
+            if first is None:
+                first = e
+            if isinstance(e, (socket.gaierror,)) or "cannot log in" in str(e).lower():
+                break  # IP o clave mal: otro puerto no lo arregla
+            continue
+        if i and pt != port:
+            try:
+                nc = load_cfg()
+                nc["port"] = pt
+                save_cfg(nc)
+                c["port"] = pt
+            except Exception:
+                pass
+        return api
+    raise first
 
 
 def db():
@@ -252,7 +318,7 @@ class SyncEngine:
                     break
             return dict(ok=True, **self.snap())
         except Exception as e:
-            return dict(ok=False, msg=str(e), **self.snap())
+            return dict(ok=False, msg=why(e), **self.snap())
         finally:
             self.net.release()
 
@@ -399,7 +465,7 @@ MAX_UPD = 3 * 1024 * 1024
 MAX_EXE = 300 * 1024 * 1024
 # Version del programa (la parte de Python/.exe). Subela cada vez que publiques un Gax.exe nuevo.
 # Es distinta de GAX_V (version de la pantalla/HTML).
-NATIVE_V = 6
+NATIVE_V = 7
 RUN_V = [0]  # version de la pantalla que se esta mostrando
 
 
@@ -852,7 +918,7 @@ class Api:
         try:
             api = connect(load_cfg())
         except Exception as e:
-            return {"error": "no se pudo conectar al MikroTik: " + str(e)}
+            return {"error": "no se pudo conectar al MikroTik: " + why(e)}
         try:
             q = api.path("queue", "simple")
             rows = {}
@@ -927,7 +993,7 @@ class Api:
         try:
             api = connect(load_cfg())
         except Exception as e:
-            return {"error": "no se pudo conectar al MikroTik: " + str(e)}
+            return {"error": "no se pudo conectar al MikroTik: " + why(e)}
         results = []
         try:
             q = api.path("queue", "simple")
@@ -991,10 +1057,12 @@ class Api:
             drop_conn()
         SYNC.rev = None
         try:
+            p0 = c["port"]
             connect(c).close()
-            return {"ok": True, "msg": "Guardado. Conexion exitosa con el MikroTik."}
+            ex = "" if c["port"] == p0 else " Usé el puerto %s (el %s no era el del API)." % (c["port"], p0)
+            return {"ok": True, "msg": "Guardado. Conexion exitosa con el MikroTik." + ex, "port": c["port"]}
         except Exception as e:
-            return {"ok": False, "msg": "Guardado, pero no se pudo conectar: " + str(e)}
+            return {"ok": False, "msg": "Guardado, pero no se pudo conectar: " + why(e)}
 
     def check_update(self, repo=None, mode=None):
         return do_check_update(repo, mode)
@@ -1085,7 +1153,7 @@ class Api:
         try:
             api = connect(load_cfg())
         except Exception as e:
-            msg = "no se pudo conectar al MikroTik: " + str(e)
+            msg = "no se pudo conectar al MikroTik: " + why(e)
             for it in items:
                 results.append({"queue": str(it.get("queue", "")), "limit": "", "ok": False, "error": msg})
             return {"results": results}
@@ -1123,7 +1191,7 @@ class Api:
                     rows = list(_conn["api"].path("queue", "simple").select("name", "bytes", "rate", "dynamic"))
                     break
                 except Exception as e:
-                    err = str(e)
+                    err = why(e)
                     drop_conn()
         if rows is None:
             return {"error": "no se pudo conectar al MikroTik: " + err}
@@ -1140,7 +1208,7 @@ class Api:
         try:
             api = connect(load_cfg())
         except Exception as e:
-            return {"error": "no se pudo conectar al MikroTik: " + str(e)}
+            return {"error": "no se pudo conectar al MikroTik: " + why(e)}
         out = []
         try:
             for row in api.path("ip", "arp").select("address", "mac-address", "interface", "status", "comment", "complete"):
@@ -1156,7 +1224,7 @@ class Api:
         try:
             api = connect(load_cfg())
         except Exception as e:
-            return {"error": "no se pudo conectar al MikroTik: " + str(e)}
+            return {"error": "no se pudo conectar al MikroTik: " + why(e)}
         out, skipped = [], 0
         try:
             for row in api.path("queue", "simple").select("name", "max-limit", "dynamic", "target"):

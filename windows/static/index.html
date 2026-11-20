@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=23;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=24;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -893,7 +893,7 @@ e('host').value=c.host;e('port').value=c.port;e('user').value=c.user;e('sync').c
 e('pass').value='';e('pass').placeholder=c.has_pass?'Guardada. Vacío para no cambiar':'';
 $('cmsg').textContent='';$('sd').showModal()}).catch(()=>alert('Los ajustes solo se cambian desde la PC'))}
 function saveCfg(){const e=k=>$('c-'+k);$('cmsg').textContent='Probando conexión...';
-fetch('api/config',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({host:e('host').value.trim(),port:e('port').value.trim(),user:e('user').value.trim(),pass:e('pass').value,sync:e('sync').checked,repo:e('repo').value.trim()})}).then(r=>r.json()).then(d=>{$('cmsg').textContent=d.msg;pollSync()}).catch(()=>{$('cmsg').textContent='No se pudo guardar'})}
+fetch('api/config',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({host:e('host').value.trim(),port:e('port').value.trim(),user:e('user').value.trim(),pass:e('pass').value,sync:e('sync').checked,repo:e('repo').value.trim()})}).then(r=>r.json()).then(d=>{let m=d.msg||'';if(/unexpectedly closed/i.test(m)&&!/Revisa:/.test(m))m+=' → El MikroTik cerró la conexión. Revisa: el puerto debe ser el del API (8728, no 80/443); en IP > Services el servicio «api» debe estar activo y su «Available From» incluir la IP de esta PC; y el usuario debe tener permiso api.';$('cmsg').textContent=m;if(d.port)$('c-port').value=d.port;pollSync()}).catch(()=>{$('cmsg').textContent='No se pudo guardar'})}
 function firstRun(){fetch('api/config').then(r=>r.ok?r.json():null).then(c=>{if(c&&!c.configured)openCfg()}).catch(()=>{})}
 /* ===== orden ===== */
 function syncSortUI(){$('so').value=sortBy;$('dirl').textContent=LBLDIR[sortBy][sortDir===1?0:1];$('dir').classList.toggle('desc',sortDir===-1);

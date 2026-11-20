@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<script>window.GAX_V=23;window.addEventListener('error',function(){window.__gerr=true})</script>
+<script>window.GAX_V=24;window.addEventListener('error',function(){window.__gerr=true})</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gax · Panel de clientes</title>
 <link rel="icon" href="static/icon.svg"><meta name="theme-color" content="#0f766e">
@@ -479,14 +479,19 @@ var J=function(o,s){return new Response(JSON.stringify(o),{status:s||200,headers
 var L=function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
 var W=function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 var cfg=function(){return Object.assign({host:'10.99.0.1',port:80,user:'gax',pass:'',repo:'GabrielGTHB/GaxHub'},L('isp.cfg',{}))};
-var base=function(c){return 'http://'+c.host+(+c.port===80?'':':'+c.port)+'/rest'};
+var base=function(c){var p=+c.port;return (p===443?'https://':'http://')+c.host+((p===80||p===443)?'':':'+p)+'/rest'};
 var hdr=function(c){return {'Authorization':'Basic '+btoa(unescape(encodeURIComponent(c.user+':'+c.pass))),'Content-Type':'application/json'}};
 var LIM=/^\d+(\.\d+)?[kM]\/\d+(\.\d+)?[kM]$/;
 var bps=function(s){var m=String(s).trim().match(/^(\d+(?:\.\d+)?)([kKmMgG]?)$/);return m?parseFloat(m[1])*({'':1,k:1e3,m:1e6,g:1e9})[m[2].toLowerCase()]:null};
 var ipOf=function(t){t=String(t||'').split(',')[0].trim();return t.slice(-3)==='/32'?t.slice(0,-3):t};
 function rest(c,path,opt){opt=opt||{};
-return of(base(c)+path,{method:opt.method||'GET',headers:hdr(c),body:opt.body}).then(function(r){return r.text().then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}
-if(!r.ok){throw new Error(r.status===401?'usuario o clave incorrectos':((j&&(j.detail||j.message))||('HTTP '+r.status)))}return j})})}
+var ac=window.AbortController?new AbortController():null,tm=ac?setTimeout(function(){ac.abort()},15000):0;
+return of(base(c)+path,{method:opt.method||'GET',headers:hdr(c),body:opt.body,signal:ac?ac.signal:undefined}).then(function(r){clearTimeout(tm);return r.text().then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}
+if(!r.ok){throw new Error(r.status===401?'usuario o clave incorrectos':r.status===404?'este MikroTik no tiene REST (necesita RouterOS 7.1 o mayor)':r.status===403?'el usuario no tiene permiso para esto (agrégale policy: read, write y api/rest-api)':((j&&(j.detail||j.message))||('HTTP '+r.status)))}return j})},function(e){clearTimeout(tm);
+var p=+c.port,msg=e&&e.name==='AbortError'?'el MikroTik no responde. Revisa la IP y que el celular esté en la misma red o VPN.':
+((p===8728||p===8729)?'el celular usa el puerto web (80), no el '+p+' (ese es solo para la PC). Cámbialo a 80 en Ajustes.':
+'no se pudo llegar al MikroTik. Revisa: la IP, que el celular esté en la misma red o VPN, y que en IP > Services esté activo «www» (puerto 80) y que su «Available From» incluya al celular. Requiere RouterOS 7.1 o mayor.');
+throw new Error(msg)})}
 /* ===== sincronizacion (PC <-> celular, via scripts del MikroTik) ===== */
 var GS=(function(){
 var CHUNK=8000,DEAD_TTL=180*86400*1000;
@@ -596,8 +601,8 @@ var H={
 'PUT clients':function(b){var a=JSON.parse(b||'[]');if(!Array.isArray(a))return J({error:'formato invalido'});SY.put(a.filter(function(x){return x&&x.id!=null}));kick();return J({ok:true})},
 'GET config':function(){var c=cfg();return J({host:c.host,port:c.port,user:c.user,has_pass:!!c.pass,has_panel_pass:true,configured:L('isp.cfg',null)!==null,repo:c.repo||'',lan:'',sync:c.sync!==false})},
 'PUT config':function(b){var d=JSON.parse(b||'{}'),c=cfg();
-c.host=String(d.host||c.host).trim();c.port=parseInt(d.port||c.port,10)||80;c.user=String(d.user||c.user).trim();if(d.pass)c.pass=String(d.pass);if(typeof d.sync==='boolean')c.sync=d.sync;if(typeof d.repo==='string')c.repo=REPO_RE.test(d.repo.trim())?d.repo.trim():'';W('isp.cfg',c);SY.rev=null;
-return rest(c,'/system/resource').then(function(){return J({ok:true,msg:'Guardado. Conexión exitosa con el MikroTik.'})}).catch(function(e){return J({ok:false,msg:'Guardado, pero no se pudo conectar: '+e.message})})},
+c.host=String(d.host||c.host).trim();c.port=parseInt(d.port||c.port,10)||80;var pfix=(c.port===8728||c.port===8729);if(pfix)c.port=80;c.user=String(d.user||c.user).trim();if(d.pass)c.pass=String(d.pass);if(typeof d.sync==='boolean')c.sync=d.sync;if(typeof d.repo==='string')c.repo=REPO_RE.test(d.repo.trim())?d.repo.trim():'';W('isp.cfg',c);SY.rev=null;
+return rest(c,'/system/resource').then(function(){return J({ok:true,msg:'Guardado. Conexión exitosa con el MikroTik.'+(pfix?' Usé el puerto 80 (el celular no usa el 8728/8729).':'')})}).catch(function(e){return J({ok:false,msg:'Guardado, pero no se pudo conectar: '+e.message})})},
 'POST apply':function(b){var c=cfg(),items=JSON.parse(b||'[]'),res=new Array(items.length);
 return rest(c,'/queue/simple?.proplist=.id,name').then(function(rows){var ids={};(rows||[]).forEach(function(x){if(x.name!=null&&ids[x.name]===undefined)ids[x.name]=x['.id']});return {ids:ids}},function(e){return {err:e.message}}).then(function(m){
 var i=0;function worker(){if(i>=items.length)return Promise.resolve();var k=i++,it=items[k],name=String(it.queue||''),limit=String(it.limit||''),r={queue:name,limit:limit,ok:false,error:''};res[k]=r;

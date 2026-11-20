@@ -1,0 +1,2 @@
+Arreglado el error «Connection unexpectedly closed» al conectar con el MikroTik: si el puerto es el web (80/443) o el API-SSL, la PC prueba sola el 8728 y el 8729 y guarda el que funcione.
+Los errores de conexión ahora explican qué revisar: puerto, servicio «api» en IP > Services, «Available From», usuario o clave.

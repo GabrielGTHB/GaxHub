@@ -1,9 +1,3 @@
-# Novedades que ve SOLO el celular (APK). La PC sigue usando novedades.txt.
-Celular mucho más fluido: la lista, el scroll, las búsquedas y las animaciones van más rápido y sin trabarse.
-Historial de pagos: toca el nombre de un cliente para ver cuándo y cuánto pagó.
-Resumen del mes: cobrado, por cobrar y total esperado, también por grupo (menú ⋯).
-Deshacer: revierte un pago, corte, borrado o edición hecho por error.
-Exportar a Excel: copia o descarga la lista de clientes y los pagos (menú ⋯).
-Ya no sale el recuadro azul al tocar o seleccionar botones y opciones.
-Actualizar ahora es solo una barra de descarga: se cambia por la versión nueva y se vuelve a abrir, sin carpetas extra ni copias viejas.
-Arreglado el aviso «la descarga no coincide con version.json» al actualizar.
+# Novedades que ve SOLO el celular (APK). La PC usa novedades/vN.txt.
+Arreglado el error al conectar con el MikroTik: si pones el puerto 8728/8729 (el de la PC), el celular usa solo el 80, y el puerto 443 ahora conecta por https.
+Los errores de conexión ahora dicen qué revisar (IP, red o VPN, servicio «www», RouterOS 7.1 o mayor, permisos) y ya no se queda esperando sin respuesta.
